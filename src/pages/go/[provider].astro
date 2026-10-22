@@ -1,0 +1,22 @@
+---
+// Repli pour les hébergeurs qui ne lisent pas public/_redirects : page de redirection vers le lien affilié.
+import providers from '../../data/providers.json';
+
+export function getStaticPaths() {
+  return providers.map((p) => ({ params: { provider: p.id }, props: { p } }));
+}
+const { p } = Astro.props;
+const target = p.url || '/comment-ca-marche#partenaires';
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="refresh" content={`0; url=${target}`}>
+  <title>Redirection vers {p.name} — nia</title>
+</head>
+<body>
+  <p>Redirection vers <a href={target} rel="sponsored nofollow">{p.name}</a>…</p>
+</body>
+</html>

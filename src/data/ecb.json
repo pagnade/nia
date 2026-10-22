@@ -1,0 +1,6 @@
+{
+  "date": "2026-07-01",
+  "source": "BCE — taux de référence de l'euro",
+  "fetchedAt": null,
+  "rates": { "USD": 1.1383, "GBP": 0.85973, "CAD": 1.6191 }
+}

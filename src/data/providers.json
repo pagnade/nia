@@ -1,0 +1,134 @@
+[
+  {
+    "id": "taptap-send",
+    "name": "Taptap Send",
+    "initials": "TS",
+    "url": "https://www.taptapsend.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 5 min",
+    "delayMin": 5,
+    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave", "moov"] },
+    "verified": "Couverture vérifiée sur le centre d'aide du service le 21/10/2026",
+    "licence": "Taptap Send Belgium S.A., établissement de paiement, Banque nationale de Belgique (n° 0754.970.695) ; Taptap Send UK Ltd, FCA (FRN 900842). Déclaré par le service, à confirmer sur les registres."
+  },
+  {
+    "id": "lemfi",
+    "name": "LemFi",
+    "initials": "LF",
+    "url": "https://lemfi.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 1 min",
+    "delayMin": 1,
+    "coverage": { "CM": ["mtn", "orange", "bank"], "CI": ["orange", "mtn", "wave", "bank"] },
+    "verified": "Couverture vérifiée sur le centre d'aide du service le 21/10/2026",
+    "licence": "Licence d'établissement de paiement de la Banque centrale d'Irlande C182347 (via Bureau Buttercrane, rachat approuvé en janvier 2025 selon la presse). À confirmer sur le registre CBI."
+  },
+  {
+    "id": "sendkolo",
+    "name": "SendKolo",
+    "initials": "SK",
+    "url": null,
+    "delay": "≈ 10 min",
+    "delayMin": 10,
+    "coverage": { "CM": ["mtn", "orange"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "instarem",
+    "name": "Instarem",
+    "initials": "IN",
+    "url": "https://www.instarem.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 1 h",
+    "delayMin": 60,
+    "coverage": { "CM": ["bank"], "CI": ["bank"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "sendwave",
+    "name": "Sendwave",
+    "initials": "SW",
+    "url": "https://www.sendwave.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 5 min",
+    "delayMin": 5,
+    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave", "moov"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "remit-choice",
+    "name": "Remit Choice",
+    "initials": "RC",
+    "url": null,
+    "delay": "≈ 30 min",
+    "delayMin": 30,
+    "coverage": { "CM": ["mtn", "orange", "bank"], "CI": ["orange", "mtn", "bank"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "transfergo",
+    "name": "TransferGo",
+    "initials": "TG",
+    "url": "https://www.transfergo.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 30 min",
+    "delayMin": 30,
+    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "remitly",
+    "name": "Remitly",
+    "initials": "RE",
+    "url": "https://www.remitly.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 10 min",
+    "delayMin": 10,
+    "coverage": { "CM": ["mtn", "orange", "bank", "cash"], "CI": ["orange", "mtn", "wave", "moov", "bank", "cash"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "worldremit",
+    "name": "WorldRemit",
+    "initials": "WR",
+    "url": "https://www.worldremit.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 15 min",
+    "delayMin": 15,
+    "coverage": { "CM": ["mtn", "orange", "bank", "cash"], "CI": ["orange", "mtn", "wave", "moov", "bank", "cash"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "xoom",
+    "name": "Xoom",
+    "initials": "XO",
+    "url": "https://www.xoom.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 30 min",
+    "delayMin": 30,
+    "coverage": { "CM": ["bank", "cash", "mtn"], "CI": ["bank", "cash", "orange"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "western-union",
+    "name": "Western Union",
+    "initials": "WU",
+    "url": "https://www.westernunion.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 15 min",
+    "delayMin": 15,
+    "coverage": { "CM": ["bank", "cash", "mtn", "orange"], "CI": ["bank", "cash", "orange", "mtn", "wave"] },
+    "verified": null,
+    "licence": null
+  },
+  {
+    "id": "moneygram",
+    "name": "MoneyGram",
+    "initials": "MG",
+    "url": "https://www.moneygram.com/?ref=[ID_AFFILIE_NIA]",
+    "delay": "≈ 15 min",
+    "delayMin": 15,
+    "coverage": { "CM": ["cash", "mtn", "orange"], "CI": ["cash", "orange", "mtn", "wave"] },
+    "verified": null,
+    "licence": null
+  }
+]

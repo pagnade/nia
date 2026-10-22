@@ -1,0 +1,15 @@
+# Reconstruit le site chaque jour ouvré pour récupérer les taux BCE et le dernier relevé des services.
+# À configurer : secret NETLIFY_BUILD_HOOK (Netlify › Site configuration › Build hooks).
+name: Rafraîchir les taux
+
+on:
+  schedule:
+    - cron: '23 15 * * 1-5' # après la publication BCE (~16 h, heure d'Europe centrale)
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclencher la reconstruction Netlify
+        run: curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK }}"

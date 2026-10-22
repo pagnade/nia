@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import providers from '../data/providers.json';
+import quotes from '../data/quotes.json';
+import ecb from '../data/ecb.json';
+import { OPS } from '../lib/compare.js';
+const partners = providers.filter((p) => p.url);
+---
+<Base title="Comment nia fonctionne — méthode, partenaires et agréments" description="Comment nia classe les services de transfert, comment le site est financé et comment vérifier l'agrément d'un service.">
+  <section class="section wrap prose">
+    <h1>Comment nia fonctionne</h1>
+    <p>nia compare ce que votre proche reçoit au Cameroun ou en Côte d'Ivoire selon le service d'envoi. nia n'envoie pas d'argent et ne détient jamais vos fonds : vous finalisez toujours l'envoi chez le service choisi.</p>
+
+    <h2>Le classement</h2>
+    <ul>
+      <li><strong>Montant reçu</strong> = (montant envoyé − frais) × taux appliqué par le service.</li>
+      <li><strong>Coût total</strong> = frais + écart entre le taux du service et la parité officielle, en % du montant envoyé (méthode de la Banque mondiale).</li>
+      <li><strong>Taux de référence</strong> : 1 EUR = 655,957 FCFA (parité fixe BEAC / BCEAO), croisé avec les taux de la BCE pour la livre, le dollar US et le dollar canadien (dernière mise à jour : {ecb.date}).</li>
+      <li><strong>Offres de bienvenue</strong> : affichées à part (mode « Premier envoi »), avec leur gain réel par rapport au taux habituel du même service.</li>
+      <li>Le premier service est celui qui donne le plus grand montant reçu. Aucun service ne peut payer pour être mieux classé.</li>
+    </ul>
+
+    <h2>D'où viennent les taux</h2>
+    <p>Les taux et frais des services sont relevés puis datés. Dernier relevé : {new Date(quotes.observedAt).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Paris' })}.{quotes.sample && <strong> Les relevés actuels sont des données d'exemple de démonstration.</strong>} Le montant final est toujours celui affiché par le service au moment de l'envoi.</p>
+
+    <h2 id="partenaires">Comment nia est financé</h2>
+    <p>Les boutons « Envoyer avec… » et ↗ sont des liens affiliés : quand vous envoyez via ces liens, le service peut verser une commission à nia. Vous ne payez rien de plus. Un service sans accord commercial avec nia reste classé à la place que lui donne son montant reçu.</p>
+    <p>Services disposant d'un lien de redirection : {partners.map((p) => p.name).join(', ')}. <span class="todo">[Préciser lesquels font l'objet d'un accord d'affiliation actif.]</span></p>
+
+    <h2>Agréments</h2>
+    <p>En France, un service de transfert doit être agréé par l'ACPR comme établissement de paiement ou de monnaie électronique, ou être agréé dans un autre pays de l'Union européenne et « passeporté ». Vérifiez sur <a href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI</a>, le <a href="https://register.fca.org.uk" target="_blank" rel="noopener">registre FCA</a> (Royaume‑Uni) ou le registre de l'autorité concernée.</p>
+    <ul>
+      {providers.map((p) => <li><strong>{p.name}</strong> — {p.licence ?? <span class="todo">[agrément à renseigner]</span>}</li>)}
+    </ul>
+
+    <h2>Couverture</h2>
+    <ul>
+      {providers.map((p) => (
+        <li><strong>{p.name}</strong> — Cameroun : {(p.coverage.CM ?? []).map((o) => OPS[o]).join(', ') || '—'} ; Côte d'Ivoire : {(p.coverage.CI ?? []).map((o) => OPS[o]).join(', ') || '—'}. {p.verified ?? 'À vérifier.'}</li>
+      ))}
+    </ul>
+  </section>
+</Base>

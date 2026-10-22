@@ -1,0 +1,15 @@
+---
+import Landing from '../../components/Landing.astro';
+import { corridors } from '../../lib/compare.js';
+
+export function getStaticPaths() {
+  return corridors().map((c) => ({ params: { corridor: c.slug }, props: c }));
+}
+const { origin, dest } = Astro.props;
+---
+<Landing
+  originCode={origin.code}
+  destCode={dest.code}
+  title={`Envoyer de l'argent de ${origin.name} ${dest.prep} : meilleur taux ${origin.ccy} → ${dest.fcfa} | nia`}
+  description={`Comparez les services pour envoyer des ${origin.ccy} ${dest.prep} : montant reçu en ${dest.fcfa}, frais, délai et portefeuilles (${dest.code === 'CI' ? 'Orange Money, MTN, Wave, Moov' : 'MTN MoMo, Orange Money'}).`}
+/>
