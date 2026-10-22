@@ -15,8 +15,9 @@
   --amber-ink: #4A3200;
   --amber-tag: #FFE3A8;
   --bad: #A12E52;
-  --display: 'Space Grotesk Variable', system-ui, sans-serif;
-  --body: 'Inter Variable', system-ui, sans-serif;
+  --display: 'Outfit Variable', system-ui, sans-serif;
+  --body: 'DM Sans Variable', system-ui, sans-serif;
+  --logo: 'Space Grotesk Variable', system-ui, sans-serif;
   color-scheme: light;
 }
 
@@ -25,7 +26,7 @@ html { scroll-behavior: smooth; }
 body { margin: 0; background: #FFFFFF; color: var(--ink); font-family: var(--body); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
 a { color: var(--violet); }
 a:hover { color: var(--violet-dark); }
-h1, h2, h3, h4 { font-family: var(--display); letter-spacing: -0.03em; margin: 0; }
+h1, h2, h3, h4 { font-family: var(--display); letter-spacing: -0.015em; margin: 0; }
 button, select, input { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -47,7 +48,7 @@ button, select, input { font: inherit; color: inherit; }
 .brand { display: flex; align-items: center; gap: 12px; color: #FFFFFF; text-decoration: none; }
 .brand:hover { color: #FFFFFF; }
 .brand svg { width: 30px; height: 36px; }
-.brand span { font-family: var(--display); font-weight: 700; font-size: 32px; letter-spacing: -0.03em; line-height: 1; }
+.brand span { font-family: var(--logo); font-weight: 700; font-size: 32px; letter-spacing: -0.03em; line-height: 1; }
 .nav__links { display: flex; flex-wrap: wrap; gap: 24px; font-size: 15px; font-weight: 500; }
 .nav__links a { color: var(--on-violet); text-decoration: none; }
 .nav__links a:hover { color: #FFFFFF; }
@@ -57,7 +58,7 @@ button, select, input { font: inherit; color: inherit; }
 .pill-kicker { display: inline-flex; align-self: flex-start; align-items: center; gap: 10px; background: rgba(255,255,255,.14); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .dots { display: inline-flex; gap: 4px; }
 .dots i { width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF; }
-.hero h1 { font-weight: 700; font-size: clamp(40px, 6vw, 70px); line-height: 1.32; letter-spacing: -0.04em; }
+.hero h1 { font-weight: 700; font-size: clamp(40px, 6vw, 70px); line-height: 1.32; letter-spacing: -0.02em; }
 .hl { background: #FFFFFF; color: var(--violet); padding: 0 .16em; border-radius: .18em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .hero__lead { margin: 0; font-size: 19px; line-height: 1.55; color: var(--on-violet); max-width: 500px; }
 .bullets { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 16px; font-weight: 500; }
@@ -121,7 +122,7 @@ button, select, input { font: inherit; color: inherit; }
 .featured__side { position: relative; flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; }
 .featured__name { display: flex; align-items: center; gap: 14px; }
 .featured__name h3 { font-size: 30px; letter-spacing: -0.02em; }
-.featured__amount { font: 700 clamp(44px, 6vw, 66px)/1.05 var(--display); letter-spacing: -0.04em; }
+.featured__amount { font: 700 clamp(44px, 6vw, 66px)/1.05 var(--display); letter-spacing: -0.02em; }
 .featured__disclose { margin: 0; font-size: 12px; line-height: 1.5; color: var(--on-violet); text-align: center; }
 .muted-on-violet { font-size: 14px; color: var(--on-violet); }
 .tags, .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -211,6 +212,8 @@ button, select, input { font: inherit; color: inherit; }
 .footer nav a { color: #FFFFFF; }
 
 .opt, .seg button { white-space: nowrap; }
+/* DM Sans n'a pas de chiffres à largeur fixe : les valeurs chiffrées passent en Outfit pour rester alignées. */
+.offer__stats dd, .table-box td, .chip { font-family: var(--display); }
 .quick-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 @media (max-width: 520px) {
