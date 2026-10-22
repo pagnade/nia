@@ -66,9 +66,12 @@ export function compare({ providers, quotes, ecb, ccy, dest, amount, op = 'all',
     return { provider: p, quote: q, ops, rate, fee: q.fee, promo, received, cost };
   };
 
-  const pool = inCorridor
+  const matching = inCorridor
     .filter((r) => opEff === 'all' || r.ops.includes(opEff))
     .map((r) => calc(r, kind === 'first'));
+  // Un service dont les frais dépassent le montant n'envoie rien : on l'écarte du classement et on le compte.
+  const pool = amt > 0 ? matching.filter((r) => r.received > 0) : matching;
+  const excluded = matching.length - pool.length;
 
   const byReceived = [...pool].sort((a, b) => b.received - a.received);
   const best = byReceived[0] || null;
@@ -90,5 +93,5 @@ export function compare({ providers, quotes, ecb, ccy, dest, amount, op = 'all',
   const counts = { all: inCorridor.length };
   for (const o of D.ops) counts[o] = inCorridor.filter((r) => r.ops.includes(o)).length;
 
-  return { dest: D, ccy, mid, amount: amt, op: opEff, kind, sort, best, second, others, promos, counts, total: pool.length };
+  return { dest: D, ccy, mid, amount: amt, op: opEff, kind, sort, best, second, others, promos, counts, total: pool.length, excluded };
 }

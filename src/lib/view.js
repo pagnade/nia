@@ -19,7 +19,7 @@ function goLink(r, cls, inner, label) {
 
 export function renderPromoBar(res) {
   const { promos, kind, dest } = res;
-  if (kind !== 'first' && !promos.length) return '';
+  if (res.amount <= 0 || (kind !== 'first' && !promos.length)) return '';
   const text = kind === 'first'
     ? 'Mode premier envoi : les taux au‑dessus de 655,957 FCFA pour 1 € sont des offres financées par les services, valables une fois et plafonnées. Vérifiez les conditions chez le service.'
     : `${promos.length} offre${promos.length > 1 ? 's' : ''} de bienvenue sur ce couloir : jusqu'à +${money(promos[0].gain, dest.fcfa)} au premier envoi avec ${esc(promos[0].provider.name)}, puis retour au taux habituel.`;
@@ -29,13 +29,18 @@ export function renderPromoBar(res) {
 
 export function renderFeatured(res) {
   const { best: b, second, dest, ccy } = res;
-  if (!b) return `<div class="empty">Aucun service suivi ne propose cette combinaison. Essayez « Tous » les portefeuilles.</div>`;
+  if (res.amount <= 0) return `<div class="empty">Saisissez le montant que vous envoyez pour voir le classement.</div>`;
+  if (!b) {
+    return res.excluded
+      ? `<div class="empty">Ce montant est inférieur aux frais de tous les services suivis. Essayez un montant plus élevé.</div>`
+      : `<div class="empty">Aucun service suivi ne propose cette combinaison. Essayez « Tous » les portefeuilles.</div>`;
+  }
   const vs = second
     ? `+${money(b.received - second.received, dest.fcfa)} de plus qu'avec ${esc(second.provider.name)}, le n° 2`
     : 'Seul service sur ce critère';
   const cta = b.provider.url
     ? goLink(b, 'btn-white btn-lg', `Envoyer avec ${esc(b.provider.name)}${ARROW}`, `Envoyer avec ${b.provider.name}`)
-    : `<div class="btn-placeholder">Lien partenaire à configurer</div>`;
+    : `<p class="btn-placeholder">Pas de lien direct : cherchez « ${esc(b.provider.name)} » dans votre magasin d'applications.</p>`;
   return `<article class="featured" aria-label="Meilleur montant reçu">
   <svg class="featured__mark" aria-hidden="true"><use href="#nia-mark"></use></svg>
   <div class="featured__main">
@@ -51,7 +56,7 @@ export function renderFeatured(res) {
 
 export function renderOthers(res) {
   const { others, best, dest, ccy } = res;
-  if (!others.length) return '';
+  if (!others.length || !best || res.amount <= 0) return '';
   const sortName = { received: 'montant reçu', fee: 'frais', speed: 'délai' }[res.sort] || 'montant reçu';
   const rows = others.map((r) => `<article class="offer">
   <div class="offer__id"><span class="avatar">${esc(r.provider.initials)}</span><div><div class="offer__title"><h4>${esc(r.provider.name)}</h4>${r.promo ? '<span class="tag tag--amber tag--sm">1er envoi</span>' : ''}</div><div class="offer__ops">${opsText(r)}</div></div></div>

@@ -38,13 +38,13 @@ const faq = [
 ];
 const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode };
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} localAnchors>
   <section slot="hero" class="hero wrap" id="top">
     <div class="hero__copy">
       <div class="pill-kicker"><span class="dots" aria-hidden="true"><i></i><i></i></span>Afrique subsaharienne</div>
       {isHome
-        ? <h1>Même envoi, <span class="hl">pas le même montant reçu&#8239;!</span></h1>
-        : <h1>{origin.name} → {dest.name}&#8239;: <span class="hl">qui donne le plus&#8239;?</span></h1>}
+        ? <h1>Même envoi, <span class="hl">pas le même montant reçu&nbsp;!</span></h1>
+        : <h1>{origin.name} → {dest.name}&nbsp;: <span class="hl">qui donne le plus&nbsp;?</span></h1>}
       <p class="hero__lead">Comparez ce que votre famille reçoit vraiment en francs CFA, frais inclus, selon le service et le portefeuille de réception.</p>
       <ul class="bullets">
         <li>Filtre par portefeuille : MTN MoMo, Orange Money, Wave, Moov</li>
@@ -92,7 +92,7 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
       <span class="field-label" id="oplbl">Votre proche reçoit sur</span>
       <div class="chips-row" role="group" aria-labelledby="oplbl">
         {['all', ...dest.ops].map((o) => (
-          <button type="button" class="opt" data-op={o} aria-pressed={o === 'all' ? 'true' : 'false'}>{o === 'all' ? 'Tous' : OPS[o]}<small>{res.counts[o]}</small></button>
+          <button type="button" class="opt" data-op={o} aria-pressed={o === 'all' ? 'true' : 'false'} disabled={o !== 'all' && res.counts[o] === 0}>{o === 'all' ? 'Tous' : OPS[o]}<small>{res.counts[o]}</small></button>
         ))}
       </div>
 
@@ -109,7 +109,8 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
     </div>
   </section>
 
-  <section class="section wrap" id="classement" aria-live="polite">
+  <section class="section wrap" id="classement">
+    <p class="sr-only" role="status" data-status></p>
     <div class="ranking-head">
       <div>
         <div class="eyebrow">Classement</div>
@@ -193,11 +194,13 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
   const $ = <T extends Element>(s: string) => document.querySelector<T>(s)!;
   const $$ = (s: string) => Array.from(document.querySelectorAll<HTMLElement>(s));
   const params = new URLSearchParams(location.search);
+  // Les paramètres d'adresse sont saisis par n'importe qui : on ne garde que des valeurs valides.
+  const urlAmount = Number(params.get('montant'));
   const state = {
-    amount: Number(params.get('montant')) || 100,
+    amount: Number.isFinite(urlAmount) && urlAmount > 0 ? Math.min(urlAmount, 1_000_000) : 100,
     op: params.get('reception') || 'all',
     kind: params.get('envoi') === 'premier' ? 'first' : 'usual',
-    sort: params.get('tri') || 'received'
+    sort: ['received', 'fee', 'speed'].includes(params.get('tri') || '') ? params.get('tri')! : 'received'
   };
   const amountInput = $<HTMLInputElement>('[data-amount]');
 
@@ -222,9 +225,18 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
     $('[data-results]').innerHTML = renderResults(res);
     const cur = res.dest.fcfa;
     $('[data-count]').textContent = `Voir les ${res.total} offres`;
-    $('[data-best]').textContent = res.best ? `jusqu'à ${fmt(res.best.received)} ${cur} reçus` : 'aucune offre pour ce choix';
+    const hasBest = res.best && res.amount > 0;
+    $('[data-best]').textContent = hasBest ? `jusqu'à ${fmt(res.best.received)} ${cur} reçus` : res.amount > 0 ? 'aucune offre pour ce choix' : 'saisissez un montant';
     $('[data-heading]').textContent = $('[data-heading]').textContent!.replace(/·[^·]*$/, `· ${fmt(res.amount)} ${res.ccy}`);
-    $('[data-meta]').textContent = `${res.total} services · ${res.op === 'all' ? 'tous portefeuilles' : OPS[res.op]} · ${res.kind === 'first' ? 'premier envoi' : 'envoi habituel'}`;
+    const excluded = res.excluded ? ` · ${res.excluded} exclu${res.excluded > 1 ? 's' : ''} (frais supérieurs au montant)` : '';
+    $('[data-meta]').textContent = `${res.total} services · ${res.op === 'all' ? 'tous portefeuilles' : OPS[res.op]} · ${res.kind === 'first' ? 'premier envoi' : 'envoi habituel'}${excluded}`;
+    $('[data-status]').textContent = hasBest
+      ? `${res.total} offres. Meilleur montant reçu : ${fmt(res.best.received)} ${cur} avec ${res.best.provider.name}.`
+      : res.amount > 0 ? 'Aucune offre pour ce choix.' : 'Saisissez un montant.';
+    $$('[data-op]').forEach((b) => {
+      const n = Number(b.querySelector('small')?.textContent);
+      (b as HTMLButtonElement).disabled = b.dataset.op !== 'all' && n === 0;
+    });
     $$('[data-quick]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.quick) === res.amount)));
     $$('[data-op]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.op === res.op)));
     $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === res.kind)));

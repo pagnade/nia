@@ -1,5 +1,6 @@
 export function GET({ site }) {
-  return new Response(`User-agent: *\nDisallow: /go/\nSitemap: ${new URL('/sitemap.xml', site).href}\n`, {
+  const sitemap = site ? `Sitemap: ${new URL('/sitemap.xml', site).href}\n` : '';
+  return new Response(`User-agent: *\nDisallow: /go/\n${sitemap}`, {
     headers: { 'Content-Type': 'text/plain' }
   });
 }

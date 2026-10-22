@@ -1,5 +1,7 @@
 ---
 import Logo from './Logo.astro';
+
+const { localAnchors = false } = Astro.props;
 ---
 <footer class="footer">
   <div class="footer__inner wrap">
@@ -9,7 +11,7 @@ import Logo from './Logo.astro';
     </div>
     <nav aria-label="Pied de page">
       <a href="/comment-ca-marche">Comment ça marche</a>
-      <a href="/#faq">FAQ</a>
+      <a href={localAnchors ? '#faq' : '/#faq'}>FAQ</a>
       <a href="/mentions-legales">Mentions légales</a>
       <a href="/confidentialite">Confidentialité</a>
     </nav>

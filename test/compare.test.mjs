@@ -60,6 +60,25 @@ test('montant nul ou négatif : rien de reçu, pas de plantage', () => {
   assert.equal(r.best.received, 0);
 });
 
+test('frais supérieurs au montant : service écarté et compté', () => {
+  const r = compare({ ...base, amount: 1 }); // C prend 2 € de frais
+  assert.equal(r.total, 2);
+  assert.equal(r.excluded, 1);
+  assert.ok(!r.others.some((x) => x.provider.id === 'c'));
+});
+
+test('rendu : montant nul → invitation à saisir, pas de « 0 XAF »', async () => {
+  const { renderResults } = await import('../src/lib/view.js');
+  const html = renderResults(compare({ ...base, amount: 0 }));
+  assert.match(html, /Saisissez le montant/);
+  assert.doesNotMatch(html, /0 XAF/);
+});
+
+test('rendu : séparateur de milliers visible (espace insécable normale)', async () => {
+  const { fmt } = await import('../src/lib/view.js');
+  assert.equal(fmt(65497), '65 497');
+});
+
 test('10 couloirs : 5 pays d\'envoi × 2 destinations', () => {
   assert.equal(corridors().length, 10);
   assert.ok(corridors().some((c) => c.slug === 'france-cameroun'));

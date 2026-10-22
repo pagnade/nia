@@ -1,15 +1,19 @@
 ---
 import Logo from './Logo.astro';
+
+const { localAnchors = false } = Astro.props;
+// Sur une page comparateur, « Classement » doit rester sur le couloir affiché, pas renvoyer à l'accueil.
+const at = localAnchors ? '' : '/';
 ---
 <header class="header">
   <svg class="header__mark" aria-hidden="true"><use href="#nia-mark"></use></svg>
   <nav class="nav wrap" aria-label="Navigation principale">
     <Logo />
     <div class="nav__links">
-      <a href="/#classement">Classement</a>
-      <a href="/#taux">Taux de référence</a>
+      <a href={`${at}#classement`}>Classement</a>
+      <a href={`${at}#taux`}>Taux de référence</a>
       <a href="/comment-ca-marche">Comment ça marche</a>
-      <a href="/#faq">FAQ</a>
+      <a href={`${at}#faq`}>FAQ</a>
     </div>
   </nav>
   <slot />

@@ -45,12 +45,12 @@ button, select, input { font: inherit; color: inherit; }
 .header { background: var(--violet); color: #FFFFFF; position: relative; overflow: hidden; }
 .header__mark { position: absolute; right: -90px; bottom: -180px; width: 560px; height: 666px; color: #FFFFFF; opacity: .08; pointer-events: none; }
 .nav { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 22px; padding-bottom: 22px; }
-.brand { display: flex; align-items: center; gap: 12px; color: #FFFFFF; text-decoration: none; }
+.brand { display: flex; align-items: center; gap: 12px; min-height: 44px; color: #FFFFFF; text-decoration: none; }
 .brand:hover { color: #FFFFFF; }
 .brand svg { width: 30px; height: 36px; }
 .brand span { font-family: var(--logo); font-weight: 700; font-size: 32px; letter-spacing: -0.03em; line-height: 1; }
-.nav__links { display: flex; flex-wrap: wrap; gap: 24px; font-size: 15px; font-weight: 500; }
-.nav__links a { color: var(--on-violet); text-decoration: none; }
+.nav__links { display: flex; flex-wrap: wrap; gap: 0 24px; font-size: 15px; font-weight: 500; }
+.nav__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--on-violet); text-decoration: none; }
 .nav__links a:hover { color: #FFFFFF; }
 
 .hero { position: relative; display: flex; flex-wrap: wrap; gap: 48px; align-items: center; padding-top: 40px; padding-bottom: 88px; }
@@ -94,6 +94,7 @@ button, select, input { font: inherit; color: inherit; }
 .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -4px; }
 .opt { min-height: 44px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 999px; border: 1.5px solid var(--line-strong); background: #FFFFFF; font-size: 13px; font-weight: 600; cursor: pointer; }
 .opt[aria-pressed="true"] { background: var(--violet); border-color: var(--violet); color: #FFFFFF; }
+.opt:disabled { opacity: .45; cursor: not-allowed; }
 .opt--grow { flex: 1 1 0; font-size: 14px; }
 .opt small { font-weight: 500; opacity: .75; font-size: 13px; }
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; background: var(--lavender); padding: 4px; border-radius: 14px; }
@@ -136,7 +137,7 @@ button, select, input { font: inherit; color: inherit; }
 .btn-white { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; background: #FFFFFF; color: var(--violet); text-decoration: none; font-weight: 700; }
 .btn-white:hover { background: var(--lavender); color: var(--violet); }
 .btn-lg { min-height: 58px; font-size: 17px; padding: 0 16px; }
-.btn-placeholder { display: flex; align-items: center; justify-content: center; min-height: 58px; border-radius: 14px; border: 1.5px dashed #D9D0FF; color: var(--on-violet); font-weight: 600; }
+.btn-placeholder { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 58px; padding: 10px 16px; border-radius: 14px; border: 1.5px dashed #D9D0FF; color: var(--on-violet); font-weight: 600; text-align: center; line-height: 1.4; }
 
 .others-title { margin: 24px 0 10px; font: 600 15px var(--body); letter-spacing: 0; color: var(--text-3); }
 .offers { display: flex; flex-direction: column; gap: 8px; }
@@ -208,8 +209,8 @@ button, select, input { font: inherit; color: inherit; }
 .footer__about { display: flex; flex-direction: column; gap: 12px; max-width: 460px; line-height: 1.5; }
 .footer .brand svg { width: 24px; height: 29px; }
 .footer .brand span { font-size: 26px; }
-.footer nav { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
-.footer nav a { color: #FFFFFF; }
+.footer nav { display: flex; flex-wrap: wrap; gap: 0 20px; align-items: flex-start; }
+.footer nav a { display: inline-flex; align-items: center; min-height: 44px; color: #FFFFFF; }
 
 .opt, .seg button { white-space: nowrap; }
 /* DM Sans n'a pas de chiffres à largeur fixe : les valeurs chiffrées passent en Outfit pour rester alignées. */
@@ -217,7 +218,7 @@ button, select, input { font: inherit; color: inherit; }
 .quick-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
 @media (max-width: 520px) {
-  .nav__links { gap: 16px; font-size: 14px; }
+  .nav__links { gap: 0 16px; font-size: 14px; }
   .hero { gap: 28px; padding-top: 24px; padding-bottom: 48px; }
   .hero h1 { font-size: 36px; }
   .hero__lead { font-size: 17px; }

@@ -1,9 +1,12 @@
 import { defineConfig } from 'astro/config';
 
-// URL publique du site (utilisée pour les liens canoniques et le sitemap).
-// À définir dans l'hébergeur : SITE_URL=https://www.votre-domaine.com
+// URL publique du site (liens canoniques, sitemap). À définir chez l'hébergeur :
+// SITE_URL=https://www.votre-domaine.com
+const site = process.env.SITE_URL || undefined;
+if (!site) console.warn('[nia] SITE_URL non définie : pas d\'URL canonique ni de sitemap complet.');
+
 export default defineConfig({
-  site: process.env.SITE_URL || 'https://nia.example',
+  site,
   trailingSlash: 'never',
   build: { format: 'directory' }
 });

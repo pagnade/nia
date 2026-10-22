@@ -11,9 +11,12 @@ import quotes from '../data/quotes.json';
 interface Props {
   title: string;
   description: string;
+  /** Page comparateur : les liens du menu pointent vers ses propres sections. */
+  localAnchors?: boolean;
 }
-const { title, description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const { title, description, localAnchors = false } = Astro.props;
+// Pas d'URL canonique tant que SITE_URL n'est pas définie : une fausse adresse ferait plus de mal que rien.
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
 const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 ---
 <!doctype html>
@@ -23,11 +26,11 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
   <meta name="description" content={description}>
-  <link rel="canonical" href={canonical}>
+  {canonical && <link rel="canonical" href={canonical}>}
   <meta property="og:type" content="website">
   <meta property="og:title" content={title}>
   <meta property="og:description" content={description}>
-  <meta property="og:url" content={canonical}>
+  {canonical && <meta property="og:url" content={canonical}>}
   <meta property="og:locale" content="fr_FR">
   <meta name="theme-color" content="#5B3DD6">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -42,14 +45,14 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     </symbol>
   </svg>
   {quotes.sample && (
-    <div class="sample-banner" role="note">Démonstration : les taux des services affichés sont des données d'exemple, pas des offres réelles.</div>
+    <aside class="sample-banner" aria-label="Avertissement">Démonstration : les taux des services affichés sont des données d'exemple, pas des offres réelles.</aside>
   )}
-  <Header>
+  <Header localAnchors={localAnchors}>
     <slot name="hero" />
   </Header>
   <main id="contenu">
     <slot />
   </main>
-  <Footer />
+  <Footer localAnchors={localAnchors} />
 </body>
 </html>
