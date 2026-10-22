@@ -1,5 +1,7 @@
 # nia — comparateur de transferts vers le Cameroun et la Côte d'Ivoire
 
+Site bilingue : français (`/`, `/envoyer/…`) et anglais (`/en`, `/en/send-money/…`).
+
 Site statique (Astro) : comparateur interactif, 10 pages de couloirs (5 pays d'envoi × 2 destinations), pages méthode et légales, sitemap, redirections affiliées `/go/<service>`.
 
 ## Démarrer en local
@@ -72,8 +74,18 @@ Dans `providers.json`, remplacer chaque `url` par le lien de suivi fourni par le
 ```
 src/lib/compare.js      moteur de comparaison (partagé navigateur / génération)
 src/lib/view.js         rendu HTML des résultats
+src/lib/i18n.js         tous les textes FR / EN, noms de pays, adresses des pages
+src/lib/seo.js          textes propres à chaque couloir, titres et descriptions
 src/components/         Landing (page comparateur), Header, Footer, Logo
 src/pages/              accueil, /envoyer/<couloir>, méthode, légal, /go/<service>, sitemap, robots
 scripts/                fetch-ecb, import-quotes, build-redirects
 test/                   tests (node --test)
 ```
+
+## Version anglaise
+
+- Tous les textes sont dans `src/lib/i18n.js` (`T.fr` et `T.en`) : pour changer une phrase, la modifier dans les deux langues.
+- Adresses anglaises : `/en`, `/en/send-money`, `/en/send-money/uk-to-cameroon`, `/en/how-it-works`, `/en/legal-notice`, `/en/privacy`.
+- Chaque page déclare sa traduction (balises `hreflang`) : Google montre la bonne langue au bon public.
+- L'accueil anglais part du couloir Royaume-Uni → Cameroun ; l'accueil français, de France → Cameroun.
+- Les mentions légales anglaises renvoient à la version française, qui fait foi.

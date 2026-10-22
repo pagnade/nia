@@ -79,18 +79,29 @@ test('rendu : séparateur de milliers visible (espace insécable normale)', asyn
   assert.equal(fmt(65497), '65 497');
 });
 
-test('SEO : chaque couloir a un titre et un texte propres', async () => {
+test('SEO : chaque couloir a un titre et un texte propres, en français et en anglais', async () => {
   const { corridorContent, pageMeta } = await import('../src/lib/seo.js');
-  const { ORIGINS, DESTS } = await import('../src/lib/compare.js');
-  const fr = ORIGINS[0], ca = ORIGINS[4];
   const q = [...quotes, { provider: 'a', ccy: 'CAD', dest: 'CM', rate: 400, fee: 0, promoRate: null }];
-  const a = corridorContent({ providers, quotes: q, ecb, origin: fr, dest: DESTS.CM });
-  const b = corridorContent({ providers, quotes: q, ecb, origin: ca, dest: DESTS.CM });
+  const a = corridorContent({ providers, quotes: q, ecb, originCode: 'FR', destCode: 'CM' });
+  const b = corridorContent({ providers, quotes: q, ecb, originCode: 'CA', destCode: 'CM' });
+  const en = corridorContent({ providers, quotes: q, ecb, originCode: 'CA', destCode: 'CM', lang: 'en' });
   assert.notEqual(a.rateLine, b.rateLine);
   assert.match(a.rateLine, /655,957 XAF/);
-  assert.match(pageMeta(ca, DESTS.CM, null).title, /du Canada au Cameroun/);
+  assert.match(pageMeta('fr', 'CA', 'CM', null).title, /du Canada au Cameroun/);
+  assert.match(pageMeta('en', 'GB', 'CI', null).title, /from the UK to Côte d'Ivoire \(Ivory Coast\)/);
   assert.equal(a.byAmount.length, 4);
   assert.match(a.faq[0][0], /de France au Cameroun/);
+  assert.match(en.faq[0][0], /from Canada to Cameroon/);
+  assert.match(en.rateLine, /Canadian dollars/);
+});
+
+test('i18n : adresses des couloirs et nombres selon la langue', async () => {
+  const { corridorPath, corridorList, fmt } = await import('../src/lib/i18n.js');
+  assert.equal(corridorPath('fr', 'GB', 'CI'), '/envoyer/royaume-uni-cote-divoire');
+  assert.equal(corridorPath('en', 'GB', 'CI'), '/en/send-money/uk-to-ivory-coast');
+  assert.equal(new Set(corridorList('en').map((c) => c.path)).size, 10);
+  assert.equal(fmt(65497, 0, 'en'), '65,497');
+  assert.equal(fmt(65497, 0, 'fr'), '65\u00A0497');
 });
 
 test('un relevé propre au pays d\'envoi l\'emporte sur celui de la devise', () => {

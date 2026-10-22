@@ -1,4 +1,7 @@
-<a class="brand" href="/" aria-label="nia, accueil">
+---
+const { href = '/', label = 'nia, accueil' } = Astro.props;
+---
+<a class="brand" href={href} aria-label={label}>
   <svg aria-hidden="true"><use href="#nia-mark"></use></svg>
   <span>nia</span>
 </a>

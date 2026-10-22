@@ -1,19 +1,23 @@
 ---
 import Logo from './Logo.astro';
+import { T, PATHS } from '../lib/i18n.js';
 
-const { localAnchors = false } = Astro.props;
+const { localAnchors = false, lang = 'fr', switchHref = null } = Astro.props;
+const t = T[lang];
 // Sur une page comparateur, « Classement » doit rester sur le couloir affiché, pas renvoyer à l'accueil.
-const at = localAnchors ? '' : '/';
+const at = localAnchors ? '' : (lang === 'fr' ? '/' : '/en');
+const other = lang === 'fr' ? 'en' : 'fr';
 ---
 <header class="header">
   <svg class="header__mark" aria-hidden="true"><use href="#nia-mark"></use></svg>
-  <nav class="nav wrap" aria-label="Navigation principale">
-    <Logo />
+  <nav class="nav wrap" aria-label={t.nav.label}>
+    <Logo href={PATHS[lang].home} label={t.nav.home} />
     <div class="nav__links">
-      <a href={`${at}#classement`}>Classement</a>
-      <a href={`${at}#taux`}>Taux de référence</a>
-      <a href="/comment-ca-marche">Comment ça marche</a>
-      <a href={`${at}#faq`}>FAQ</a>
+      <a href={`${at}#classement`}>{t.nav.ranking}</a>
+      <a href={`${at}#taux`}>{t.nav.rates}</a>
+      <a href={PATHS[lang].how}>{t.nav.how}</a>
+      <a href={`${at}#faq`}>{t.nav.faq}</a>
+      <a class="lang-switch" href={switchHref ?? PATHS[other].home} hreflang={other} lang={other} aria-label={t.switchLabel}>{t.switchTo}</a>
     </div>
   </nav>
   <slot />

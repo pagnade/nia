@@ -3,9 +3,10 @@ import Base from '../layouts/Base.astro';
 import providers from '../data/providers.json';
 import quotes from '../data/quotes.json';
 import ecb from '../data/ecb.json';
-import { compare, corridorSlug, midRate, CCY, DESTS, OPS, ORIGINS } from '../lib/compare.js';
-import { renderResults, fmt } from '../lib/view.js';
+import { compare, midRate, CCY } from '../lib/compare.js';
+import { renderResults } from '../lib/view.js';
 import { corridorContent, hubRows } from '../lib/seo.js';
+import { T, OPS_L, CCY_L, PATHS, PARAMS, origin as originOf, dest as destOf, origins, dests, corridorPath, fmt, dateLong } from '../lib/i18n.js';
 
 interface Props {
   originCode: string;
@@ -13,87 +14,82 @@ interface Props {
   title: string;
   description: string;
   isHome?: boolean;
+  lang?: 'fr' | 'en';
 }
-const { originCode, destCode, title, description, isHome = false } = Astro.props;
-const origin = ORIGINS.find((o) => o.code === originCode)!;
-const dest = DESTS[destCode];
+const { originCode, destCode, title, description, isHome = false, lang = 'fr' } = Astro.props;
+const t = T[lang];
+const P = PATHS[lang];
+const q = PARAMS[lang];
+const origin = originOf(lang, originCode);
+const dest = destOf(lang, destCode);
 const ccy = origin.ccy;
 const AMOUNT = 100;
+const n = (v: number, d = 0) => fmt(v, d, lang);
 const res = compare({ providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, origin: originCode, amount: AMOUNT });
-const observed = new Date(quotes.observedAt).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Paris' });
-const ecbDate = new Date(ecb.date).toLocaleDateString('fr-FR', { dateStyle: 'long' });
+const observed = dateLong(quotes.observedAt, lang, true);
+const ecbDate = dateLong(ecb.date, lang);
 const popular = [
   ['FR', 'CM', 100], ['FR', 'CI', 100], ['BE', 'CM', 250], ['GB', 'CI', 200],
-  ['US', 'CI', 300], ['CA', 'CM', 300], ['FR', 'CM', 500], ['BE', 'CI', 250]
+  ['US', 'CI', 300], ['CA', 'CM', 300], ['GB', 'CM', 200], ['US', 'CM', 300]
 ].map(([o, d, a]) => {
-  const oo = ORIGINS.find((x) => x.code === o)!;
-  const dd = DESTS[d as string];
-  return { href: `/envoyer/${corridorSlug(oo, dd)}?montant=${a}`, title: `${oo.name} → ${dd.name}`, sub: `${a} ${oo.ccy} vers ${dd.fcfa}` };
+  const oo = originOf(lang, o as string), dd = destOf(lang, d as string);
+  return { href: `${corridorPath(lang, o as string, d as string)}?${q.amount}=${a}`, title: `${oo.name} → ${dd.name}`, sub: t.popularSub(a, oo.ccy, dd.fcfa) };
 });
-const faq = [
-  ["Comment nia gagne-t-il de l'argent ?", "Par des liens affiliés : certains services nous versent une commission quand vous envoyez via nia. Vous ne payez rien de plus, et le classement reste calculé uniquement sur le montant reçu (ou le critère que vous choisissez)."],
-  ['Comment le montant reçu est-il calculé ?', "(Montant envoyé − frais) × taux appliqué par le service. Le coût total ajoute frais et écart avec la parité officielle, en % du montant, comme le fait la Banque mondiale."],
-  ['Pourquoi certains taux dépassent 655,957 FCFA pour 1 € ?', "Le franc CFA est arrimé à l'euro : 1 € vaut toujours 655,957 FCFA. Un taux plus élevé est une promotion payée par le service, souvent limitée au premier envoi et plafonnée. Activez « Premier envoi » pour la voir, « Envoi habituel » pour la suite."],
-  ['Puis-je envoyer directement depuis nia ?', "Non. Le bouton « Envoyer avec… » vous emmène chez le service, où vous finalisez l'envoi. nia ne détient jamais vos fonds."],
-  ['Les taux sont-ils à jour ?', "Chaque relevé est daté en haut du classement. Le montant final est celui que le service affiche au moment de l'envoi : vérifiez-le toujours avant de payer."]
-];
-const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, origin: originCode };
-const content = isHome ? null : corridorContent({ providers, quotes: quotes.quotes, ecb, origin, dest });
-const hub = isHome ? hubRows({ providers, quotes: quotes.quotes, ecb }) : [];
-const faqAll = content ? [...content.faq, ...faq] : faq;
+const content = isHome ? null : corridorContent({ providers, quotes: quotes.quotes, ecb, originCode, destCode, lang });
+const hub = isHome ? hubRows({ providers, quotes: quotes.quotes, ecb, lang }) : [];
+const faqAll = content ? [...content.faq, ...t.faq] : t.faq;
+const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, origin: originCode, lang };
+
 const site = Astro.site;
 const abs = (p: string) => (site ? new URL(p, site).href : p);
 const jsonLd = isHome
   ? { '@context': 'https://schema.org', '@graph': [
       { '@type': 'Organization', name: 'nia', url: abs('/'), logo: abs('/favicon.svg') },
-      { '@type': 'WebSite', name: 'nia', url: abs('/'), inLanguage: 'fr' }
+      { '@type': 'WebSite', name: 'nia', url: abs(P.home), inLanguage: lang }
     ] }
   : { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Accueil', item: abs('/') },
-      { '@type': 'ListItem', position: 2, name: "Envoyer de l'argent", item: abs('/envoyer') },
+      { '@type': 'ListItem', position: 1, name: t.crumbs.home, item: abs(P.home) },
+      { '@type': 'ListItem', position: 2, name: t.crumbs.hub, item: abs(P.hub) },
       { '@type': 'ListItem', position: 3, name: `${origin.name} → ${dest.name}`, item: abs(Astro.url.pathname) }
     ] };
+const alternates = isHome
+  ? { fr: PATHS.fr.home, en: PATHS.en.home }
+  : { fr: corridorPath('fr', originCode, destCode), en: corridorPath('en', originCode, destCode) };
 ---
-<Base title={title} description={description} localAnchors jsonLd={jsonLd}>
+<Base title={title} description={description} localAnchors jsonLd={jsonLd} lang={lang} alternates={alternates}>
   <section slot="hero" class="hero wrap" id="top">
     <div class="hero__copy">
       {!isHome && (
-        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span aria-hidden="true">›</span><a href="/envoyer">Envoyer de l'argent</a><span aria-hidden="true">›</span><span aria-current="page">{origin.name} → {dest.name}</span></nav>
+        <nav class="crumbs" aria-label={t.crumbs.label}><a href={P.home}>{t.crumbs.home}</a><span aria-hidden="true">›</span><a href={P.hub}>{t.crumbs.hub}</a><span aria-hidden="true">›</span><span aria-current="page">{origin.name} → {dest.name}</span></nav>
       )}
-      <div class="pill-kicker"><span class="dots" aria-hidden="true"><i></i><i></i></span>Afrique subsaharienne</div>
+      <div class="pill-kicker"><span class="dots" aria-hidden="true"><i></i><i></i></span>{t.kicker}</div>
       {isHome
-        ? <h1>Même envoi, <span class="hl">pas le même montant reçu&nbsp;!</span></h1>
-        : <h1 class="h1--corridor">Envoyer de l'argent {origin.from} <span class="hl">{dest.prep}</span></h1>}
-      {isHome
-        ? <p class="hero__lead">Comparez les services de transfert d'argent vers le Cameroun et la Côte d'Ivoire : ce que votre famille reçoit vraiment en francs CFA, frais inclus, sur MTN MoMo, Orange Money, Wave ou en banque.</p>
-        : <p class="hero__lead">Comparatif {origin.ccy} → {dest.fcfa} : ce que votre famille reçoit vraiment {dest.prep}, frais inclus, selon le service et le portefeuille de réception.</p>}
-      <ul class="bullets">
-        <li>Filtre par portefeuille : MTN MoMo, Orange Money, Wave, Moov</li>
-        <li>Offres de bienvenue séparées du taux habituel</li>
-        <li>Chaque taux daté, chaque lien affilié signalé</li>
-      </ul>
+        ? <h1>{t.homeH1[0]}<span class="hl">{t.homeH1[1]}</span></h1>
+        : <h1 class="h1--corridor">{t.corridorH1(origin)}<span class="hl">{dest.prep}</span></h1>}
+      <p class="hero__lead">{isHome ? t.homeLead : t.corridorLead(origin, dest)}</p>
+      <ul class="bullets">{t.bullets.map((b) => <li>{b}</li>)}</ul>
     </div>
 
-    <div class="widget" role="group" aria-label="Paramètres de comparaison" id="comparateur">
+    <div class="widget" role="group" aria-label={t.w.label} id="comparateur">
       <div class="route">
         <div class="route__card route__from">
-          <span class="route__label">De</span>
+          <span class="route__label">{t.w.from}</span>
           <div class="route__val">
             <span class="ccy-badge" aria-hidden="true">{CCY[ccy].sym}</span>
-            <span class="route__country"><strong>{origin.name}</strong><span>{ccy} · {CCY[ccy].name}</span></span>
+            <span class="route__country"><strong>{origin.short}</strong><span>{ccy} · {CCY_L[lang][ccy]}</span></span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:#5B3DD6;flex:0 0 18px"><path d="M6 9l6 6 6-6"></path></svg>
           </div>
-          <span class="route__hint">Changer de pays</span>
-          <select id="from" aria-label="Pays d'envoi" data-from>
-            {ORIGINS.map((o) => <option value={`/envoyer/${corridorSlug(o, dest)}`} selected={o.code === originCode}>{o.name} · {o.ccy}</option>)}
+          <span class="route__hint">{t.w.change}</span>
+          <select id="from" aria-label={t.w.fromAria} data-from>
+            {origins(lang).map((o) => <option value={corridorPath(lang, o.code, destCode)} selected={o.code === originCode}>{o.name} · {o.ccy}</option>)}
           </select>
         </div>
         <div class="route__link" aria-hidden="true"><svg><use href="#nia-mark"></use></svg></div>
         <div class="route__card">
-          <span class="route__label" id="tolbl">Vers</span>
+          <span class="route__label" id="tolbl">{t.w.to}</span>
           <nav class="route__dests" aria-labelledby="tolbl">
-            {Object.values(DESTS).map((d) => (
-              <a href={`/envoyer/${corridorSlug(origin, d)}`} aria-current={d.code === destCode ? 'page' : undefined} data-keep-query>
+            {dests(lang).map((d) => (
+              <a href={corridorPath(lang, originCode, d.code)} aria-current={d.code === destCode ? 'page' : undefined} data-keep-query>
                 <span>{d.name}</span><small>{d.fcfa}</small>
               </a>
             ))}
@@ -101,31 +97,31 @@ const jsonLd = isHome
         </div>
       </div>
 
-      <label class="field-label" for="amount">J'envoie</label>
+      <label class="field-label" for="amount">{t.w.send}</label>
       <div class="amount">
         <input id="amount" type="number" min="0" step="1" inputmode="decimal" value={AMOUNT} data-amount>
         <span>{ccy}</span>
       </div>
-      <div class="chips-row quick-row" role="group" aria-label="Montants rapides">
+      <div class="chips-row quick-row" role="group" aria-label={t.w.quick}>
         {[100, 250, 500, 1000].map((v) => <button type="button" class="opt opt--grow" data-quick={v} aria-pressed={v === AMOUNT ? 'true' : 'false'}>{v} {ccy}</button>)}
       </div>
 
-      <span class="field-label" id="oplbl">Votre proche reçoit sur</span>
+      <span class="field-label" id="oplbl">{t.w.receivesOn}</span>
       <div class="chips-row" role="group" aria-labelledby="oplbl">
         {['all', ...dest.ops].map((o) => (
-          <button type="button" class="opt" data-op={o} aria-pressed={o === 'all' ? 'true' : 'false'} disabled={o !== 'all' && res.counts[o] === 0}>{o === 'all' ? 'Tous' : OPS[o]}<small>{res.counts[o]}</small></button>
+          <button type="button" class="opt" data-op={o} aria-pressed={o === 'all' ? 'true' : 'false'} disabled={o !== 'all' && res.counts[o] === 0}>{o === 'all' ? t.w.all : OPS_L[lang][o]}<small>{res.counts[o]}</small></button>
         ))}
       </div>
 
-      <span class="field-label" id="kindlbl">Type d'envoi</span>
+      <span class="field-label" id="kindlbl">{t.w.kind}</span>
       <div class="seg" role="group" aria-labelledby="kindlbl">
-        <button type="button" data-kind="usual" aria-pressed="true">Envoi habituel</button>
-        <button type="button" data-kind="first" aria-pressed="false">Premier envoi</button>
+        <button type="button" data-kind="usual" aria-pressed="true">{t.w.usual}</button>
+        <button type="button" data-kind="first" aria-pressed="false">{t.w.first}</button>
       </div>
 
       <a href="#classement" class="cta-main">
-        <strong data-count>Voir les {res.total} offres</strong>
-        <span data-best>jusqu'à {res.best ? `${fmt(res.best.received)} ${dest.fcfa}` : '—'} reçus</span>
+        <strong data-count>{t.w.cta(res.total)}</strong>
+        <span data-best>{res.best ? t.w.upTo(`${n(res.best.received)} ${dest.fcfa}`) : t.w.none}</span>
       </a>
     </div>
   </section>
@@ -134,27 +130,25 @@ const jsonLd = isHome
     <p class="sr-only" role="status" data-status></p>
     <div class="ranking-head">
       <div>
-        <div class="eyebrow">Classement</div>
+        <div class="eyebrow">{t.r.eyebrow}</div>
         <h2 data-heading>{origin.name} → {dest.name} · {AMOUNT} {ccy}</h2>
         <div class="ranking-meta">
-          <span data-meta>{res.total} services · tous portefeuilles · envoi habituel</span>
-          <span>Taux relevés le {observed}{quotes.sample ? ' — valeurs d\'exemple' : ''}</span>
+          <span data-meta>{t.r.meta(res.total, t.r.allWallets, t.r.kindUsual)}</span>
+          <span>{t.r.observed(observed, quotes.sample)}</span>
         </div>
       </div>
-      <div class="seg seg--round" role="group" aria-label="Trier les autres offres par">
-        <button type="button" data-sort="received" aria-pressed="true">Montant reçu</button>
-        <button type="button" data-sort="fee" aria-pressed="false">Frais</button>
-        <button type="button" data-sort="speed" aria-pressed="false">Délai</button>
+      <div class="seg seg--round" role="group" aria-label={t.r.sortLabel}>
+        {(['received', 'fee', 'speed'] as const).map((k) => <button type="button" data-sort={k} aria-pressed={k === 'received' ? 'true' : 'false'}>{t.r.sort[k]}</button>)}
       </div>
     </div>
-    <div data-results set:html={renderResults(res)} />
-    <p class="note">Coût total = frais + écart avec la parité officielle, en % du montant (méthode Banque mondiale ; moyenne mondiale 6,49 % au T1 2025, objectif ONU ≤ 3 %). Les boutons ↗ sont des liens affiliés. Couverture vérifiée pour Taptap Send et LemFi (centres d'aide, 21/10/2026).</p>
+    <div data-results set:html={renderResults(res, lang)} />
+    <p class="note">{t.r.note}</p>
   </section>
 
   {content && (
     <section class="section wrap" id="a-savoir">
-      <div class="eyebrow">À savoir</div>
-      <h2 class="h2">Envoyer de l'argent {origin.from} {dest.prep} : l'essentiel</h2>
+      <div class="eyebrow">{t.s.eyebrow}</div>
+      <h2 class="h2">{t.s.h2(origin, dest)}</h2>
       <div class="facts">
         <div class="prose facts__text">
           <p>{content.rateLine}</p>
@@ -164,76 +158,76 @@ const jsonLd = isHome
         </div>
         <div class="table-box facts__table">
           <table>
-            <caption>Meilleur montant reçu selon la somme envoyée</caption>
-            <thead><tr><th scope="col">Vous envoyez</th><th scope="col">Meilleur service</th><th scope="col">Votre proche reçoit</th></tr></thead>
+            <caption>{t.s.caption}</caption>
+            <thead><tr>{t.s.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
             <tbody>
               {content.byAmount.map((r) => <tr><th scope="row">{r.amount}</th><td>{r.name}</td><td>{r.received}</td></tr>)}
             </tbody>
           </table>
         </div>
       </div>
-      <p class="note">Calcul au relevé du {observed}{quotes.sample ? " (valeurs d'exemple)" : ''}, envoi habituel, tous portefeuilles.</p>
+      <p class="note">{t.s.calc(observed, quotes.sample)}</p>
     </section>
   )}
 
   {isHome && (
     <section class="section wrap" id="couloirs-tous">
-      <div class="eyebrow">Tous les couloirs</div>
-      <h2 class="h2">Meilleur montant reçu pour 100, couloir par couloir</h2>
+      <div class="eyebrow">{t.hub.eyebrow}</div>
+      <h2 class="h2">{t.hub.h2}</h2>
       <div class="table-box" style="margin-top:20px">
         <table>
-          <caption class="sr-only">Meilleur service par couloir pour 100 unités envoyées</caption>
-          <thead><tr><th scope="col">Couloir</th><th scope="col">Vous envoyez</th><th scope="col">Meilleur service</th><th scope="col">Votre proche reçoit</th></tr></thead>
+          <caption class="sr-only">{t.hub.caption}</caption>
+          <thead><tr>{t.hub.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
           <tbody>
             {hub.map((r) => <tr><th scope="row"><a href={r.href}>{r.label}</a></th><td>{r.amount}</td><td>{r.name}</td><td>{r.best}</td></tr>)}
           </tbody>
         </table>
       </div>
-      <p class="note">Relevé du {observed}{quotes.sample ? " (valeurs d'exemple)" : ''}. <a href="/envoyer">Voir tous les couloirs →</a></p>
+      <p class="note">{t.hub.note(observed, quotes.sample)} <a href={P.hub}>{t.hub.all}</a></p>
     </section>
   )}
 
   <section class="section section--tint" id="taux">
     <div class="wrap ref">
       <div class="ref__copy">
-        <div class="eyebrow">Taux de référence</div>
-        <h2>1 € = 655,957 FCFA. Toujours.</h2>
-        <p>XAF (BEAC, Cameroun) et XOF (BCEAO, Côte d'Ivoire) sont arrimés à l'euro. Depuis l'euro, la différence entre services n'est donc pas le marché : c'est la marge de chacun. Depuis la livre, le dollar ou le dollar canadien, le taux suit en plus l'euro.</p>
+        <div class="eyebrow">{t.ref.eyebrow}</div>
+        <h2>{t.ref.h2}</h2>
+        <p>{t.ref.p}</p>
       </div>
       <div class="table-box">
         <table>
-          <caption class="sr-only">Taux de référence vers le franc CFA</caption>
-          <thead><tr><th scope="col">Pays</th>{['EUR', 'GBP', 'USD', 'CAD'].map((c) => <th scope="col">1 {c}</th>)}</tr></thead>
+          <caption class="sr-only">{t.ref.caption}</caption>
+          <thead><tr><th scope="col">{t.ref.country}</th>{['EUR', 'GBP', 'USD', 'CAD'].map((c) => <th scope="col">1 {c}</th>)}</tr></thead>
           <tbody>
-            {Object.values(DESTS).map((d) => (
+            {dests(lang).map((d) => (
               <tr>
                 <th scope="row">{d.name} <small>· {d.fcfa}</small></th>
-                {['EUR', 'GBP', 'USD', 'CAD'].map((c) => <td>{fmt(midRate(ecb, c), c === 'EUR' ? 3 : 2)}</td>)}
+                {['EUR', 'GBP', 'USD', 'CAD'].map((c) => <td>{n(midRate(ecb, c), c === 'EUR' ? 3 : 2)}</td>)}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
     </div>
-    <p class="note wrap">Parité BEAC / BCEAO croisée avec les taux de référence de la BCE du {ecbDate}, mis à jour automatiquement chaque jour ouvré.</p>
+    <p class="note wrap">{t.ref.note(ecbDate)}</p>
   </section>
 
   <section class="section wrap" id="transparence">
-    <div class="eyebrow">Transparence</div>
-    <h2 class="h2">Comment nia fonctionne</h2>
-    <p class="lead">Un comparateur ne vaut que par sa neutralité. Voici tout ce qu'il faut savoir, sans astérisque.</p>
+    <div class="eyebrow">{t.how.eyebrow}</div>
+    <h2 class="h2">{t.how.h2}</h2>
+    <p class="lead">{t.how.lead}</p>
     <div class="cards">
-      <div class="card"><div class="num">1</div><h3>Par montant reçu, rien d'autre</h3><p>(Montant − frais) × taux appliqué. Vous pouvez aussi trier par frais ou par délai. Aucun service ne peut payer pour monter.</p></div>
-      <div class="card"><div class="num">2</div><h3>Des liens affiliés, signalés</h3><p>Certains services nous versent une commission quand vous envoyez via nos liens. Vous ne payez pas plus. Un service sans accord avec nous reste classé à sa place.</p></div>
-      <div class="card"><div class="num">3</div><h3>Vérifiez l'agrément vous-même</h3><p>nia ne détient jamais votre argent. Avant d'envoyer, vérifiez que le service est agréé (ACPR en France, ou autorité d'un autre pays de l'UE / du Royaume-Uni).</p>
-        <div class="btn-row"><a class="link-btn" href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI (ACPR)</a><a class="link-btn" href="https://register.fca.org.uk" target="_blank" rel="noopener">Registre FCA</a></div>
-      </div>
+      {t.how.cards.map(([h, p], i) => (
+        <div class="card"><div class="num">{i + 1}</div><h3>{h}</h3><p>{p}</p>
+          {i === 2 && <div class="btn-row"><a class="link-btn" href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI (ACPR)</a><a class="link-btn" href="https://register.fca.org.uk" target="_blank" rel="noopener">{t.how.fca}</a></div>}
+        </div>
+      ))}
     </div>
-    <p class="note"><a href="/comment-ca-marche">Méthode complète, partenaires et agréments →</a></p>
+    <p class="note"><a href={P.how}>{t.how.more}</a></p>
   </section>
 
   <section class="wrap" style="padding-bottom:72px" id="couloirs">
-    <h2 class="h2" style="font-size:24px;margin-bottom:16px">Couloirs populaires</h2>
+    <h2 class="h2" style="font-size:24px;margin-bottom:16px">{t.popular}</h2>
     <div class="corridors">
       {popular.map((c) => <a href={c.href}><strong>{c.title}</strong><span>{c.sub}</span></a>)}
     </div>
@@ -241,8 +235,8 @@ const jsonLd = isHome
 
   <section class="section section--tint" id="faq">
     <div class="wrap faq">
-      <h2 class="h2" style="margin-bottom:20px">Questions fréquentes</h2>
-      {faqAll.map(([q, a], i) => <details open={i === 0}><summary>{q}</summary><p>{a}</p></details>)}
+      <h2 class="h2" style="margin-bottom:20px">{t.faqTitle}</h2>
+      {faqAll.map(([qq, a], i) => <details open={i === 0}><summary>{qq}</summary><p>{a}</p></details>)}
     </div>
   </section>
 
@@ -250,34 +244,39 @@ const jsonLd = isHome
 </Base>
 
 <script>
-  import { compare, OPS } from '../lib/compare.js';
-  import { renderResults, fmt } from '../lib/view.js';
+  import { compare } from '../lib/compare.js';
+  import { renderResults } from '../lib/view.js';
+  import { T, OPS_L, PARAMS, fmt } from '../lib/i18n.js';
 
   const data = JSON.parse(document.getElementById('nia-data')!.textContent!);
-  const $ = <T extends Element>(s: string) => document.querySelector<T>(s)!;
+  const lang: 'fr' | 'en' = data.lang;
+  const t = T[lang];
+  const q = PARAMS[lang];
+  const n = (v: number) => fmt(v, 0, lang);
+  const $ = <E extends Element>(s: string) => document.querySelector<E>(s)!;
   const $$ = (s: string) => Array.from(document.querySelectorAll<HTMLElement>(s));
   const params = new URLSearchParams(location.search);
   // Les paramètres d'adresse sont saisis par n'importe qui : on ne garde que des valeurs valides.
-  const urlAmount = Number(params.get('montant'));
+  const urlAmount = Number(params.get(q.amount));
   const state = {
     amount: Number.isFinite(urlAmount) && urlAmount > 0 ? Math.min(urlAmount, 1_000_000) : 100,
-    op: params.get('reception') || 'all',
-    kind: params.get('envoi') === 'premier' ? 'first' : 'usual',
-    sort: ['received', 'fee', 'speed'].includes(params.get('tri') || '') ? params.get('tri')! : 'received'
+    op: params.get(q.op) || 'all',
+    kind: params.get(q.kind) === q.first ? 'first' : 'usual',
+    sort: ['received', 'fee', 'speed'].includes(params.get(q.sort) || '') ? params.get(q.sort)! : 'received'
   };
   const amountInput = $<HTMLInputElement>('[data-amount]');
 
   function syncUrl() {
     const p = new URLSearchParams();
-    if (state.amount !== 100) p.set('montant', String(state.amount));
-    if (state.op !== 'all') p.set('reception', state.op);
-    if (state.kind === 'first') p.set('envoi', 'premier');
-    if (state.sort !== 'received') p.set('tri', state.sort);
-    const q = p.toString();
-    history.replaceState(null, '', location.pathname + (q ? `?${q}` : '') + location.hash);
+    if (state.amount !== 100) p.set(q.amount, String(state.amount));
+    if (state.op !== 'all') p.set(q.op, state.op);
+    if (state.kind === 'first') p.set(q.kind, q.first);
+    if (state.sort !== 'received') p.set(q.sort, state.sort);
+    const qs = p.toString();
+    history.replaceState(null, '', location.pathname + (qs ? `?${qs}` : '') + location.hash);
     $$('[data-keep-query]').forEach((a) => {
       const url = new URL((a as HTMLAnchorElement).href);
-      url.search = q;
+      url.search = qs;
       (a as HTMLAnchorElement).href = url.toString();
     });
   }
@@ -285,21 +284,15 @@ const jsonLd = isHome
   function render() {
     const res = compare({ ...data, ...state });
     state.op = res.op;
-    $('[data-results]').innerHTML = renderResults(res);
+    $('[data-results]').innerHTML = renderResults(res, lang);
     const cur = res.dest.fcfa;
-    $('[data-count]').textContent = `Voir les ${res.total} offres`;
     const hasBest = res.best && res.amount > 0;
-    $('[data-best]').textContent = hasBest ? `jusqu'à ${fmt(res.best.received)} ${cur} reçus` : res.amount > 0 ? 'aucune offre pour ce choix' : 'saisissez un montant';
-    $('[data-heading]').textContent = $('[data-heading]').textContent!.replace(/·[^·]*$/, `· ${fmt(res.amount)} ${res.ccy}`);
-    const excluded = res.excluded ? ` · ${res.excluded} exclu${res.excluded > 1 ? 's' : ''} (frais supérieurs au montant)` : '';
-    $('[data-meta]').textContent = `${res.total} services · ${res.op === 'all' ? 'tous portefeuilles' : OPS[res.op]} · ${res.kind === 'first' ? 'premier envoi' : 'envoi habituel'}${excluded}`;
-    $('[data-status]').textContent = hasBest
-      ? `${res.total} offres. Meilleur montant reçu : ${fmt(res.best.received)} ${cur} avec ${res.best.provider.name}.`
-      : res.amount > 0 ? 'Aucune offre pour ce choix.' : 'Saisissez un montant.';
-    $$('[data-op]').forEach((b) => {
-      const n = Number(b.querySelector('small')?.textContent);
-      (b as HTMLButtonElement).disabled = b.dataset.op !== 'all' && n === 0;
-    });
+    $('[data-count]').textContent = t.w.cta(res.total);
+    $('[data-best]').textContent = hasBest ? t.w.upTo(`${n(res.best.received)} ${cur}`) : res.amount > 0 ? t.w.none : t.w.enter;
+    $('[data-heading]').textContent = $('[data-heading]').textContent!.replace(/·[^·]*$/, `· ${n(res.amount)} ${res.ccy}`);
+    const excluded = res.excluded ? t.r.excluded(res.excluded) : '';
+    $('[data-meta]').textContent = t.r.meta(res.total, res.op === 'all' ? t.r.allWallets : OPS_L[lang][res.op], res.kind === 'first' ? t.r.kindFirst : t.r.kindUsual) + excluded;
+    $('[data-status]').textContent = hasBest ? t.r.status(res.total, `${n(res.best.received)} ${cur}`, res.best.provider.name) : res.amount > 0 ? t.r.statusNone : t.r.statusEnter;
     $$('[data-quick]').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.quick) === res.amount)));
     $$('[data-op]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.op === res.op)));
     $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === res.kind)));
@@ -317,8 +310,7 @@ const jsonLd = isHome
     if ((e.target as HTMLElement).closest('[data-toggle-kind]')) { state.kind = state.kind === 'first' ? 'usual' : 'first'; render(); }
   });
   $<HTMLSelectElement>('[data-from]').addEventListener('change', (e) => {
-    const q = location.search;
-    location.assign((e.target as HTMLSelectElement).value + q);
+    location.assign((e.target as HTMLSelectElement).value + location.search);
   });
   render();
 </script>

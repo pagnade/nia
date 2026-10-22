@@ -1,19 +1,23 @@
 ---
 import Logo from './Logo.astro';
+import { T, PATHS } from '../lib/i18n.js';
 
-const { localAnchors = false } = Astro.props;
+const { localAnchors = false, lang = 'fr' } = Astro.props;
+const t = T[lang];
+const P = PATHS[lang];
+const at = localAnchors ? '' : (lang === 'fr' ? '/' : '/en');
 ---
 <footer class="footer">
   <div class="footer__inner wrap">
     <div class="footer__about">
-      <Logo />
-      <span>Comparateur indépendant des transferts vers le Cameroun et la Côte d'Ivoire. Taux indicatifs, non contractuels : vérifiez le montant final chez le service avant d'envoyer.</span>
+      <Logo href={P.home} label={t.nav.home} />
+      <span>{t.footer.about}</span>
     </div>
-    <nav aria-label="Pied de page">
-      <a href="/comment-ca-marche">Comment ça marche</a>
-      <a href={localAnchors ? '#faq' : '/#faq'}>FAQ</a>
-      <a href="/mentions-legales">Mentions légales</a>
-      <a href="/confidentialite">Confidentialité</a>
+    <nav aria-label={t.footer.label}>
+      <a href={P.how}>{t.nav.how}</a>
+      <a href={`${at}#faq`}>{t.nav.faq}</a>
+      <a href={P.legal}>{t.footer.legal}</a>
+      <a href={P.privacy}>{t.footer.privacy}</a>
     </nav>
   </div>
 </footer>

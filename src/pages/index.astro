@@ -1,10 +1,5 @@
 ---
 import Landing from '../components/Landing.astro';
+import { T } from '../lib/i18n.js';
 ---
-<Landing
-  isHome
-  originCode="FR"
-  destCode="CM"
-  title="Envoyer de l'argent au Cameroun et en Côte d'Ivoire : comparez les taux | nia"
-  description="Combien votre famille reçoit vraiment en francs CFA ? Comparez Taptap Send, LemFi, Remitly, WorldRemit, Western Union et d'autres : frais, délais, MTN MoMo, Orange Money, Wave. Taux datés, comparateur gratuit."
-/>
+<Landing isHome lang="fr" originCode="FR" destCode="CM" title={T.fr.meta.homeTitle} description={T.fr.meta.homeDesc} />

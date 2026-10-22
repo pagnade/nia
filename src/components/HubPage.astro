@@ -1,0 +1,42 @@
+---
+// Liste de tous les couloirs, dans une langue donnée.
+import Base from '../layouts/Base.astro';
+import providers from '../data/providers.json';
+import quotes from '../data/quotes.json';
+import ecb from '../data/ecb.json';
+import { hubRows } from '../lib/seo.js';
+import { T, PATHS, dateLong } from '../lib/i18n.js';
+
+const { lang } = Astro.props;
+const t = T[lang];
+const P = PATHS[lang];
+const rows = hubRows({ providers, quotes: quotes.quotes, ecb, lang });
+const observed = dateLong(quotes.observedAt, lang, true);
+const site = Astro.site;
+const abs = (p: string) => (site ? new URL(p, site).href : p);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t.crumbs.home, item: abs(P.home) },
+    { '@type': 'ListItem', position: 2, name: t.crumbs.hub, item: abs(P.hub) }
+  ]
+};
+---
+<Base title={t.hub.pageTitle} description={t.hub.pageDesc} jsonLd={jsonLd} lang={lang} alternates={{ fr: PATHS.fr.hub, en: PATHS.en.hub }}>
+  <section class="section wrap">
+    <nav class="crumbs crumbs--dark" aria-label={t.crumbs.label}><a href={P.home}>{t.crumbs.home}</a><span aria-hidden="true">›</span><span aria-current="page">{t.crumbs.hub}</span></nav>
+    <h1 class="h2" style="font-size:clamp(32px,4vw,48px);margin:12px 0 8px">{t.hub.pageH1}</h1>
+    <p class="lead">{t.hub.pageLead}</p>
+    <div class="table-box">
+      <table>
+        <caption class="sr-only">{t.hub.caption}</caption>
+        <thead><tr>{t.hub.cols.map((c) => <th scope="col">{c}</th>)}</tr></thead>
+        <tbody>
+          {rows.map((r) => <tr><th scope="row"><a href={r.href}>{r.label}</a></th><td>{r.amount}</td><td>{r.name}</td><td>{r.best}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">{t.hub.pageNote(observed, quotes.sample)} <a href={P.how}>{t.hub.method}</a></p>
+  </section>
+</Base>

@@ -6,9 +6,22 @@
     "url": "https://www.taptapsend.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 5 min",
     "delayMin": 5,
-    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave", "moov"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave",
+        "moov"
+      ]
+    },
     "verified": "Couverture vérifiée sur le centre d'aide du service le 21/10/2026",
-    "licence": "Taptap Send Belgium S.A., établissement de paiement, Banque nationale de Belgique (n° 0754.970.695) ; Taptap Send UK Ltd, FCA (FRN 900842). Déclaré par le service, à confirmer sur les registres."
+    "licence": "Taptap Send Belgium S.A., établissement de paiement, Banque nationale de Belgique (n° 0754.970.695) ; Taptap Send UK Ltd, FCA (FRN 900842). Déclaré par le service, à confirmer sur les registres.",
+    "verifiedEn": "Coverage checked on the provider's help centre on 21 Oct 2026",
+    "licenceEn": "Taptap Send Belgium S.A., payment institution, National Bank of Belgium (no. 0754.970.695); Taptap Send UK Ltd, FCA (FRN 900842). As stated by the provider, to be confirmed on the registers."
   },
   {
     "id": "lemfi",
@@ -17,9 +30,23 @@
     "url": "https://lemfi.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 1 min",
     "delayMin": 1,
-    "coverage": { "CM": ["mtn", "orange", "bank"], "CI": ["orange", "mtn", "wave", "bank"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange",
+        "bank"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave",
+        "bank"
+      ]
+    },
     "verified": "Couverture vérifiée sur le centre d'aide du service le 21/10/2026",
-    "licence": "Licence d'établissement de paiement de la Banque centrale d'Irlande C182347 (via Bureau Buttercrane, rachat approuvé en janvier 2025 selon la presse). À confirmer sur le registre CBI."
+    "licence": "Licence d'établissement de paiement de la Banque centrale d'Irlande C182347 (via Bureau Buttercrane, rachat approuvé en janvier 2025 selon la presse). À confirmer sur le registre CBI.",
+    "verifiedEn": "Coverage checked on the provider's help centre on 21 Oct 2026",
+    "licenceEn": "Payment institution licence from the Central Bank of Ireland C182347 (via Bureau Buttercrane, acquisition approved in January 2025 according to press reports). To be confirmed on the CBI register."
   },
   {
     "id": "sendkolo",
@@ -28,9 +55,16 @@
     "url": null,
     "delay": "≈ 10 min",
     "delayMin": 10,
-    "coverage": { "CM": ["mtn", "orange"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "instarem",
@@ -39,9 +73,18 @@
     "url": "https://www.instarem.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 1 h",
     "delayMin": 60,
-    "coverage": { "CM": ["bank"], "CI": ["bank"] },
+    "coverage": {
+      "CM": [
+        "bank"
+      ],
+      "CI": [
+        "bank"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "sendwave",
@@ -50,9 +93,22 @@
     "url": "https://www.sendwave.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 5 min",
     "delayMin": 5,
-    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave", "moov"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave",
+        "moov"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "remit-choice",
@@ -61,9 +117,22 @@
     "url": null,
     "delay": "≈ 30 min",
     "delayMin": 30,
-    "coverage": { "CM": ["mtn", "orange", "bank"], "CI": ["orange", "mtn", "bank"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange",
+        "bank"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "bank"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "transfergo",
@@ -72,9 +141,21 @@
     "url": "https://www.transfergo.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 30 min",
     "delayMin": 30,
-    "coverage": { "CM": ["mtn", "orange"], "CI": ["orange", "mtn", "wave"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "remitly",
@@ -83,9 +164,26 @@
     "url": "https://www.remitly.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 10 min",
     "delayMin": 10,
-    "coverage": { "CM": ["mtn", "orange", "bank", "cash"], "CI": ["orange", "mtn", "wave", "moov", "bank", "cash"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange",
+        "bank",
+        "cash"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave",
+        "moov",
+        "bank",
+        "cash"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "worldremit",
@@ -94,9 +192,26 @@
     "url": "https://www.worldremit.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 15 min",
     "delayMin": 15,
-    "coverage": { "CM": ["mtn", "orange", "bank", "cash"], "CI": ["orange", "mtn", "wave", "moov", "bank", "cash"] },
+    "coverage": {
+      "CM": [
+        "mtn",
+        "orange",
+        "bank",
+        "cash"
+      ],
+      "CI": [
+        "orange",
+        "mtn",
+        "wave",
+        "moov",
+        "bank",
+        "cash"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "xoom",
@@ -105,9 +220,22 @@
     "url": "https://www.xoom.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 30 min",
     "delayMin": 30,
-    "coverage": { "CM": ["bank", "cash", "mtn"], "CI": ["bank", "cash", "orange"] },
+    "coverage": {
+      "CM": [
+        "bank",
+        "cash",
+        "mtn"
+      ],
+      "CI": [
+        "bank",
+        "cash",
+        "orange"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "western-union",
@@ -116,9 +244,25 @@
     "url": "https://www.westernunion.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 15 min",
     "delayMin": 15,
-    "coverage": { "CM": ["bank", "cash", "mtn", "orange"], "CI": ["bank", "cash", "orange", "mtn", "wave"] },
+    "coverage": {
+      "CM": [
+        "bank",
+        "cash",
+        "mtn",
+        "orange"
+      ],
+      "CI": [
+        "bank",
+        "cash",
+        "orange",
+        "mtn",
+        "wave"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   },
   {
     "id": "moneygram",
@@ -127,8 +271,22 @@
     "url": "https://www.moneygram.com/?ref=[ID_AFFILIE_NIA]",
     "delay": "≈ 15 min",
     "delayMin": 15,
-    "coverage": { "CM": ["cash", "mtn", "orange"], "CI": ["cash", "orange", "mtn", "wave"] },
+    "coverage": {
+      "CM": [
+        "cash",
+        "mtn",
+        "orange"
+      ],
+      "CI": [
+        "cash",
+        "orange",
+        "mtn",
+        "wave"
+      ]
+    },
     "verified": null,
-    "licence": null
+    "licence": null,
+    "verifiedEn": null,
+    "licenceEn": null
   }
 ]

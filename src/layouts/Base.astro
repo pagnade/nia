@@ -7,6 +7,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import quotes from '../data/quotes.json';
+import { T } from '../lib/i18n.js';
 
 interface Props {
   title: string;
@@ -15,8 +16,13 @@ interface Props {
   localAnchors?: boolean;
   /** Données structurées schema.org (JSON-LD). */
   jsonLd?: object;
+  lang?: 'fr' | 'en';
+  /** Même page dans chaque langue (chemins), pour hreflang et le sélecteur de langue. */
+  alternates?: { fr: string; en: string };
 }
-const { title, description, localAnchors = false, jsonLd } = Astro.props;
+const { title, description, localAnchors = false, jsonLd, lang = 'fr', alternates } = Astro.props;
+const t = T[lang];
+const absUrl = (p: string) => (Astro.site ? new URL(p, Astro.site).href : null);
 // Tant que les relevés sont des exemples, on demande aux moteurs de ne pas indexer : pas de faux taux dans Google.
 const noindex = quotes.sample;
 // Pas d'URL canonique tant que SITE_URL n'est pas définie : une fausse adresse ferait plus de mal que rien.
@@ -24,7 +30,7 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : nu
 const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
 ---
 <!doctype html>
-<html lang="fr">
+<html lang={t.htmlLang}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,11 +38,16 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
   <meta name="description" content={description}>
   {noindex && <meta name="robots" content="noindex, follow">}
   {canonical && <link rel="canonical" href={canonical}>}
+  {Astro.site && alternates && <>
+    <link rel="alternate" hreflang="fr" href={absUrl(alternates.fr)}>
+    <link rel="alternate" hreflang="en" href={absUrl(alternates.en)}>
+    <link rel="alternate" hreflang="x-default" href={absUrl(alternates.fr)}>
+  </>}
   <meta property="og:type" content="website">
   <meta property="og:title" content={title}>
   <meta property="og:description" content={description}>
   {canonical && <meta property="og:url" content={canonical}>}
-  <meta property="og:locale" content="fr_FR">
+  <meta property="og:locale" content={t.ogLocale}>
   <meta name="theme-color" content="#5B3DD6">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>}
@@ -51,14 +62,14 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     </symbol>
   </svg>
   {quotes.sample && (
-    <aside class="sample-banner" aria-label="Avertissement">Démonstration : les taux des services affichés sont des données d'exemple, pas des offres réelles.</aside>
+    <aside class="sample-banner" aria-label={t.sampleBannerLabel}>{t.sampleBanner}</aside>
   )}
-  <Header localAnchors={localAnchors}>
+  <Header localAnchors={localAnchors} lang={lang} switchHref={alternates ? alternates[lang === 'fr' ? 'en' : 'fr'] : null}>
     <slot name="hero" />
   </Header>
   <main id="contenu">
     <slot />
   </main>
-  <Footer localAnchors={localAnchors} />
+  <Footer localAnchors={localAnchors} lang={lang} />
 </body>
 </html>

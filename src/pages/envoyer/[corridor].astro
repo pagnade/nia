@@ -1,16 +1,10 @@
 ---
-import Landing from '../../components/Landing.astro';
-import providers from '../../data/providers.json';
-import quotes from '../../data/quotes.json';
-import ecb from '../../data/ecb.json';
-import { compare, corridors } from '../../lib/compare.js';
-import { pageMeta } from '../../lib/seo.js';
+import CorridorPage from '../../components/CorridorPage.astro';
+import { corridorList } from '../../lib/i18n.js';
 
 export function getStaticPaths() {
-  return corridors().map((c) => ({ params: { corridor: c.slug }, props: c }));
+  return corridorList('fr').map(({ o, d, path }) => ({ params: { corridor: path.split('/').at(-1) }, props: { o, d } }));
 }
-const { origin, dest } = Astro.props;
-const { best } = compare({ providers, quotes: quotes.quotes, ecb, ccy: origin.ccy, dest: dest.code, origin: origin.code, amount: 100 });
-const { title, description } = pageMeta(origin, dest, best);
+const { o, d } = Astro.props;
 ---
-<Landing originCode={origin.code} destCode={dest.code} title={title} description={description} />
+<CorridorPage lang="fr" o={o} d={d} />

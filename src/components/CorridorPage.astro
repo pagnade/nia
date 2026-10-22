@@ -1,0 +1,15 @@
+---
+// Page d'un couloir (pays d'envoi → destination), dans une langue donnée.
+import Landing from './Landing.astro';
+import providers from '../data/providers.json';
+import quotes from '../data/quotes.json';
+import ecb from '../data/ecb.json';
+import { compare } from '../lib/compare.js';
+import { pageMeta } from '../lib/seo.js';
+import { origin } from '../lib/i18n.js';
+
+const { lang, o, d } = Astro.props;
+const { best } = compare({ providers, quotes: quotes.quotes, ecb, ccy: origin(lang, o).ccy, dest: d, origin: o, amount: 100 });
+const { title, description } = pageMeta(lang, o, d, best);
+---
+<Landing lang={lang} originCode={o} destCode={d} title={title} description={description} />

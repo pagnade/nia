@@ -1,0 +1,10 @@
+---
+import CorridorPage from '../../../components/CorridorPage.astro';
+import { corridorList } from '../../../lib/i18n.js';
+
+export function getStaticPaths() {
+  return corridorList('en').map(({ o, d, path }) => ({ params: { corridor: path.split('/').at(-1) }, props: { o, d } }));
+}
+const { o, d } = Astro.props;
+---
+<CorridorPage lang="en" o={o} d={d} />

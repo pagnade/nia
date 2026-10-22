@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import providers from '../../data/providers.json';
+import quotes from '../../data/quotes.json';
+import ecb from '../../data/ecb.json';
+import { OPS_L, dateLong } from '../../lib/i18n.js';
+const partners = providers.filter((p) => p.url);
+const ops = (xs) => (xs ?? []).map((o) => OPS_L.en[o]).join(', ') || '—';
+---
+<Base lang="en" alternates={{ fr: '/comment-ca-marche', en: '/en/how-it-works' }} title="How nia works — method, partners and licences" description="How nia ranks money transfer providers to Cameroon and Côte d'Ivoire, how the site is funded and how to check a provider's licence.">
+  <section class="section wrap prose">
+    <h1>How nia works</h1>
+    <p>nia compares what your recipient receives in Cameroon or Côte d'Ivoire depending on the provider you use. nia does not send money and never holds your funds: you always complete the transfer with the provider you choose.</p>
+
+    <h2>The rankings</h2>
+    <ul>
+      <li><strong>Amount received</strong> = (amount sent − fees) × rate applied by the provider.</li>
+      <li><strong>Total cost</strong> = fees + gap between the provider's rate and the official parity, as a % of the amount sent (World Bank method).</li>
+      <li><strong>Reference rate</strong>: €1 = 655.957 CFA francs (fixed BEAC / BCEAO parity), crossed with European Central Bank rates for the pound, the US dollar and the Canadian dollar (last update: {dateLong(ecb.date, 'en')}).</li>
+      <li><strong>Welcome offers</strong> are shown separately ("First transfer" mode), with their real gain compared with the same provider's regular rate.</li>
+      <li>The top provider is the one that gives the largest amount received. No provider can pay to rank higher.</li>
+    </ul>
+
+    <h2>Where the rates come from</h2>
+    <p>Provider rates and fees are collected, then dated. Latest collection: {dateLong(quotes.observedAt, 'en', true)}.{quotes.sample && <strong> The current rates are sample data for demonstration.</strong>} The final amount is always the one the provider shows when you send.</p>
+
+    <h2 id="partners">How nia is funded</h2>
+    <p>The "Send with…" and ↗ buttons are affiliate links: when you send through them, the provider may pay nia a commission. You pay nothing extra. A provider with no commercial agreement with nia keeps the rank its amount received gives it.</p>
+    <p>Providers with a redirect link: {partners.map((p) => p.name).join(', ')}. <span class="todo">[State which ones have an active affiliate agreement.]</span></p>
+
+    <h2>Licences</h2>
+    <p>Check that a provider is licensed where you live: the <a href="https://register.fca.org.uk" target="_blank" rel="noopener">FCA register</a> in the UK, FinCEN registration and a state money transmitter licence in the US, FINTRAC registration in Canada, or <a href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI</a> in France.</p>
+    <ul>
+      {providers.map((p) => <li><strong>{p.name}</strong> — {p.licenceEn ?? <span class="todo">[licence to be added]</span>}</li>)}
+    </ul>
+
+    <h2>Coverage</h2>
+    <ul>
+      {providers.map((p) => <li><strong>{p.name}</strong> — Cameroon: {ops(p.coverage.CM)}; Côte d'Ivoire: {ops(p.coverage.CI)}. {p.verifiedEn ?? 'To be verified.'}</li>)}
+    </ul>
+  </section>
+</Base>
