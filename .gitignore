@@ -3,3 +3,4 @@ dist/
 .astro/
 .env
 public/_redirects
+src/data/quotes.json

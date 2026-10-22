@@ -5,7 +5,7 @@
   "type": "module",
   "description": "nia — comparateur de transferts d'argent vers le Cameroun et la Côte d'Ivoire",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "npm run data && astro dev",
     "data": "node scripts/fetch-ecb.mjs && node scripts/import-quotes.mjs && node scripts/build-redirects.mjs",
     "build": "npm run data && astro build",
     "preview": "astro preview",
