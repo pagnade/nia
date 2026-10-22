@@ -47,10 +47,11 @@ taptap-send,EUR,CM,655.10,0,,2026-10-23T09:00:00Z,0
 - `promo_rate` : taux du premier envoi s'il existe, sinon vide
 - `observed_at` : date et heure du relevé (ISO 8601)
 - `sample` : `1` pour une donnée d'exemple, `0` pour un vrai relevé
+- `origin` (colonne facultative) : `FR`, `BE`, `GB`, `US` ou `CA` si le taux ne vaut que depuis ce pays. Sans elle, le relevé vaut pour tous les pays qui envoient dans cette devise (France et Belgique pour l'euro). Un relevé avec `origin` l'emporte sur le relevé général.
 
 Google Sheets : *Fichier › Partager › Publier sur le web › format CSV* → copier le lien dans `QUOTES_CSV_URL`. Les lignes invalides sont ignorées et signalées dans le journal de construction.
 
-**Tant qu'une seule ligne a `sample = 1`, le site affiche un bandeau « données d'exemple ».** `data/quotes.csv` ne contient aujourd'hui que des données d'exemple.
+**Tant qu'une seule ligne a `sample = 1`, le site affiche un bandeau « données d'exemple » et demande à Google de ne pas l'indexer (`noindex`).** L'indexation s'ouvre automatiquement dès que tous les relevés sont réels. `data/quotes.csv` ne contient aujourd'hui que des données d'exemple.
 
 ## Liens affiliés
 
@@ -58,7 +59,8 @@ Dans `providers.json`, remplacer chaque `url` par le lien de suivi fourni par le
 
 ## Avant d'ouvrir au public
 
-- [ ] Vrais relevés (`sample = 0`) et date de relevé à jour
+- [ ] Vrais relevés (`sample = 0`) et date de relevé à jour — tant que ce n'est pas fait, le site n'est pas indexé par Google
+- [ ] Inscrire le site sur Google Search Console et y déclarer `/sitemap.xml` (après avoir défini `SITE_URL`)
 - [ ] Liens affiliés réels, liste des partenaires dans `src/pages/comment-ca-marche.astro`
 - [ ] Agréments des services non vérifiés (`licence` dans `providers.json`)
 - [ ] Mentions légales et confidentialité : remplacer les passages surlignés `[…]`

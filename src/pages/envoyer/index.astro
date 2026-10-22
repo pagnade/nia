@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import providers from '../../data/providers.json';
+import quotes from '../../data/quotes.json';
+import ecb from '../../data/ecb.json';
+import { hubRows } from '../../lib/seo.js';
+
+const rows = hubRows({ providers, quotes: quotes.quotes, ecb });
+const observed = new Date(quotes.observedAt).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Paris' });
+const site = Astro.site;
+const abs = (p: string) => (site ? new URL(p, site).href : p);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Accueil', item: abs('/') },
+    { '@type': 'ListItem', position: 2, name: "Envoyer de l'argent", item: abs('/envoyer') }
+  ]
+};
+---
+<Base
+  title="Envoyer de l'argent au Cameroun et en Côte d'Ivoire : tous les couloirs | nia"
+  description="France, Belgique, Royaume-Uni, États-Unis, Canada : comparez les services pour envoyer de l'argent au Cameroun (XAF) et en Côte d'Ivoire (XOF), couloir par couloir."
+  jsonLd={jsonLd}
+>
+  <section class="section wrap">
+    <nav class="crumbs crumbs--dark" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span aria-hidden="true">›</span><span aria-current="page">Envoyer de l'argent</span></nav>
+    <h1 class="h2" style="font-size:clamp(32px,4vw,48px);margin:12px 0 8px">Envoyer de l'argent au Cameroun et en Côte d'Ivoire</h1>
+    <p class="lead">Choisissez votre pays d'envoi et la destination : nia compare ce que votre famille reçoit vraiment en francs CFA, frais inclus, selon le service et le portefeuille (MTN MoMo, Orange Money, Wave, Moov ou banque).</p>
+    <div class="table-box">
+      <table>
+        <caption class="sr-only">Meilleur service par couloir pour 100 unités envoyées</caption>
+        <thead><tr><th scope="col">Couloir</th><th scope="col">Vous envoyez</th><th scope="col">Meilleur service</th><th scope="col">Votre proche reçoit</th></tr></thead>
+        <tbody>
+          {rows.map((r) => <tr><th scope="row"><a href={r.href}>{r.label}</a></th><td>{r.amount}</td><td>{r.name}</td><td>{r.best}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Relevé du {observed}{quotes.sample ? " (valeurs d'exemple)" : ''}, envoi habituel. <a href="/comment-ca-marche">Notre méthode →</a></p>
+  </section>
+</Base>

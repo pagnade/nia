@@ -79,6 +79,26 @@ test('rendu : séparateur de milliers visible (espace insécable normale)', asyn
   assert.equal(fmt(65497), '65 497');
 });
 
+test('SEO : chaque couloir a un titre et un texte propres', async () => {
+  const { corridorContent, pageMeta } = await import('../src/lib/seo.js');
+  const { ORIGINS, DESTS } = await import('../src/lib/compare.js');
+  const fr = ORIGINS[0], ca = ORIGINS[4];
+  const q = [...quotes, { provider: 'a', ccy: 'CAD', dest: 'CM', rate: 400, fee: 0, promoRate: null }];
+  const a = corridorContent({ providers, quotes: q, ecb, origin: fr, dest: DESTS.CM });
+  const b = corridorContent({ providers, quotes: q, ecb, origin: ca, dest: DESTS.CM });
+  assert.notEqual(a.rateLine, b.rateLine);
+  assert.match(a.rateLine, /655,957 XAF/);
+  assert.match(pageMeta(ca, DESTS.CM, null).title, /du Canada au Cameroun/);
+  assert.equal(a.byAmount.length, 4);
+  assert.match(a.faq[0][0], /de France au Cameroun/);
+});
+
+test('un relevé propre au pays d\'envoi l\'emporte sur celui de la devise', () => {
+  const q = [...quotes, { provider: 'a', ccy: 'EUR', dest: 'CM', rate: 640, fee: 0, promoRate: null, origin: 'BE' }];
+  assert.equal(compare({ ...base, quotes: q, origin: 'BE' }).best.provider.id, 'b'); // A tombe à 640 depuis la Belgique
+  assert.equal(compare({ ...base, quotes: q, origin: 'FR' }).best.provider.id, 'a'); // inchangé depuis la France
+});
+
 test('10 couloirs : 5 pays d\'envoi × 2 destinations', () => {
   assert.equal(corridors().length, 10);
   assert.ok(corridors().some((c) => c.slug === 'france-cameroun'));

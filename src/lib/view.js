@@ -21,7 +21,7 @@ export function renderPromoBar(res) {
   const { promos, kind, dest } = res;
   if (res.amount <= 0 || (kind !== 'first' && !promos.length)) return '';
   const text = kind === 'first'
-    ? 'Mode premier envoi : les taux au‑dessus de 655,957 FCFA pour 1 € sont des offres financées par les services, valables une fois et plafonnées. Vérifiez les conditions chez le service.'
+    ? 'Mode premier envoi : les taux au-dessus de 655,957 FCFA pour 1 € sont des offres financées par les services, valables une fois et plafonnées. Vérifiez les conditions chez le service.'
     : `${promos.length} offre${promos.length > 1 ? 's' : ''} de bienvenue sur ce couloir : jusqu'à +${money(promos[0].gain, dest.fcfa)} au premier envoi avec ${esc(promos[0].provider.name)}, puis retour au taux habituel.`;
   const cta = kind === 'first' ? "Revenir à l'envoi habituel" : 'Voir en mode premier envoi';
   return `<div class="promo-bar"><div class="promo-bar__text">${GIFT}<span>${text}</span></div><button type="button" class="btn-amber" data-toggle-kind>${cta}</button></div>`;

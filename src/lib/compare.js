@@ -17,11 +17,11 @@ export const DESTS = {
 };
 
 export const ORIGINS = [
-  { code: 'FR', name: 'France', slug: 'france', ccy: 'EUR' },
-  { code: 'BE', name: 'Belgique', slug: 'belgique', ccy: 'EUR' },
-  { code: 'GB', name: 'Royaume‑Uni', slug: 'royaume-uni', ccy: 'GBP' },
-  { code: 'US', name: 'États‑Unis', slug: 'etats-unis', ccy: 'USD' },
-  { code: 'CA', name: 'Canada', slug: 'canada', ccy: 'CAD' }
+  { code: 'FR', name: 'France', from: 'de France', slug: 'france', ccy: 'EUR' },
+  { code: 'BE', name: 'Belgique', from: 'de Belgique', slug: 'belgique', ccy: 'EUR' },
+  { code: 'GB', name: 'Royaume-Uni', from: 'du Royaume-Uni', slug: 'royaume-uni', ccy: 'GBP' },
+  { code: 'US', name: 'États-Unis', from: 'des États-Unis', slug: 'etats-unis', ccy: 'USD' },
+  { code: 'CA', name: 'Canada', from: 'du Canada', slug: 'canada', ccy: 'CAD' }
 ];
 
 export const CCY = {
@@ -45,7 +45,7 @@ export function midRate(ecb, ccy) {
   return ccy === 'EUR' ? PEG : PEG / ecb.rates[ccy];
 }
 
-export function compare({ providers, quotes, ecb, ccy, dest, amount, op = 'all', kind = 'usual', sort = 'received' }) {
+export function compare({ providers, quotes, ecb, ccy, dest, amount, origin = null, op = 'all', kind = 'usual', sort = 'received' }) {
   const D = DESTS[dest];
   const mid = midRate(ecb, ccy);
   const amt = Math.max(0, Number(amount) || 0);
@@ -54,7 +54,9 @@ export function compare({ providers, quotes, ecb, ccy, dest, amount, op = 'all',
   const inCorridor = [];
   for (const p of providers) {
     const ops = p.coverage[dest] || [];
-    const q = quotes.find((x) => x.provider === p.id && x.ccy === ccy && x.dest === dest);
+    // Un relevé propre au pays d'envoi (colonne origin) l'emporte sur le relevé valable pour toute la devise.
+    const same = (x) => x.provider === p.id && x.ccy === ccy && x.dest === dest;
+    const q = (origin && quotes.find((x) => same(x) && x.origin === origin)) || quotes.find((x) => same(x) && !x.origin);
     if (q && ops.length) inCorridor.push({ p, q, ops });
   }
 

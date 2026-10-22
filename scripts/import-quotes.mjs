@@ -1,6 +1,7 @@
 // Importe les relevés de taux des services depuis un CSV
 // (Google Sheets publié en CSV via QUOTES_CSV_URL, sinon data/quotes.csv) et écrit src/data/quotes.json.
-// Colonnes : provider,ccy,dest,rate,fee,promo_rate,observed_at,sample
+// Colonnes : provider,ccy,dest,rate,fee,promo_rate,observed_at,sample[,origin]
+// origin (facultatif) : FR, BE, GB, US ou CA si le taux relevé ne vaut que pour ce pays d'envoi.
 import { readFile, writeFile } from 'node:fs/promises';
 
 const LOCAL = new URL('../data/quotes.csv', import.meta.url);
@@ -8,6 +9,7 @@ const OUT = new URL('../src/data/quotes.json', import.meta.url);
 const PROVIDERS = new URL('../src/data/providers.json', import.meta.url);
 const CCYS = ['EUR', 'GBP', 'USD', 'CAD'];
 const DESTS = ['CM', 'CI'];
+const ORIGINS = ['FR', 'BE', 'GB', 'US', 'CA'];
 
 export function parseQuotesCsv(text, providerIds) {
   const lines = text.trim().split(/\r?\n/);
@@ -18,6 +20,7 @@ export function parseQuotesCsv(text, providerIds) {
     return i;
   };
   const idx = Object.fromEntries(['provider', 'ccy', 'dest', 'rate', 'fee', 'promo_rate', 'observed_at', 'sample'].map((n) => [n, col(n)]));
+  const originCol = head.indexOf('origin');
   const quotes = [];
   const errors = [];
   lines.forEach((line, n) => {
@@ -31,12 +34,14 @@ export function parseQuotesCsv(text, providerIds) {
       fee: Number(c[idx.fee] || 0),
       promoRate: c[idx.promo_rate] ? Number(c[idx.promo_rate]) : null,
       observedAt: c[idx.observed_at],
-      sample: ['1', 'true', 'oui'].includes((c[idx.sample] || '').toLowerCase())
+      sample: ['1', 'true', 'oui'].includes((c[idx.sample] || '').toLowerCase()),
+      origin: originCol >= 0 && c[originCol] ? c[originCol].toUpperCase() : null
     };
     const where = `ligne ${n + 2}`;
     if (!providerIds.includes(q.provider)) errors.push(`${where} : service inconnu « ${q.provider} »`);
     else if (!CCYS.includes(q.ccy)) errors.push(`${where} : devise inconnue « ${q.ccy} »`);
     else if (!DESTS.includes(q.dest)) errors.push(`${where} : destination inconnue « ${q.dest} »`);
+    else if (q.origin && !ORIGINS.includes(q.origin)) errors.push(`${where} : pays d'envoi inconnu « ${q.origin} »`);
     else if (!(q.rate > 0) || !(q.fee >= 0) || (q.promoRate !== null && !(q.promoRate > 0))) errors.push(`${where} : nombre invalide`);
     else if (Number.isNaN(Date.parse(q.observedAt))) errors.push(`${where} : date invalide « ${q.observedAt} »`);
     else quotes.push(q);

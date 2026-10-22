@@ -13,8 +13,12 @@ interface Props {
   description: string;
   /** Page comparateur : les liens du menu pointent vers ses propres sections. */
   localAnchors?: boolean;
+  /** Données structurées schema.org (JSON-LD). */
+  jsonLd?: object;
 }
-const { title, description, localAnchors = false } = Astro.props;
+const { title, description, localAnchors = false, jsonLd } = Astro.props;
+// Tant que les relevés sont des exemples, on demande aux moteurs de ne pas indexer : pas de faux taux dans Google.
+const noindex = quotes.sample;
 // Pas d'URL canonique tant que SITE_URL n'est pas définie : une fausse adresse ferait plus de mal que rien.
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : null;
 const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
@@ -26,6 +30,7 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title}</title>
   <meta name="description" content={description}>
+  {noindex && <meta name="robots" content="noindex, follow">}
   {canonical && <link rel="canonical" href={canonical}>}
   <meta property="og:type" content="website">
   <meta property="og:title" content={title}>
@@ -34,6 +39,7 @@ const analyticsDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
   <meta property="og:locale" content="fr_FR">
   <meta name="theme-color" content="#5B3DD6">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>}
   {analyticsDomain && <script defer data-domain={analyticsDomain} src="https://plausible.io/js/script.js"></script>}
 </head>
 <body>

@@ -5,6 +5,7 @@ import quotes from '../data/quotes.json';
 import ecb from '../data/ecb.json';
 import { compare, corridorSlug, midRate, CCY, DESTS, OPS, ORIGINS } from '../lib/compare.js';
 import { renderResults, fmt } from '../lib/view.js';
+import { corridorContent, hubRows } from '../lib/seo.js';
 
 interface Props {
   originCode: string;
@@ -18,7 +19,7 @@ const origin = ORIGINS.find((o) => o.code === originCode)!;
 const dest = DESTS[destCode];
 const ccy = origin.ccy;
 const AMOUNT = 100;
-const res = compare({ providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, amount: AMOUNT });
+const res = compare({ providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, origin: originCode, amount: AMOUNT });
 const observed = new Date(quotes.observedAt).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Europe/Paris' });
 const ecbDate = new Date(ecb.date).toLocaleDateString('fr-FR', { dateStyle: 'long' });
 const popular = [
@@ -36,16 +37,36 @@ const faq = [
   ['Puis-je envoyer directement depuis nia ?', "Non. Le bouton « Envoyer avec… » vous emmène chez le service, où vous finalisez l'envoi. nia ne détient jamais vos fonds."],
   ['Les taux sont-ils à jour ?', "Chaque relevé est daté en haut du classement. Le montant final est celui que le service affiche au moment de l'envoi : vérifiez-le toujours avant de payer."]
 ];
-const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode };
+const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode, origin: originCode };
+const content = isHome ? null : corridorContent({ providers, quotes: quotes.quotes, ecb, origin, dest });
+const hub = isHome ? hubRows({ providers, quotes: quotes.quotes, ecb }) : [];
+const faqAll = content ? [...content.faq, ...faq] : faq;
+const site = Astro.site;
+const abs = (p: string) => (site ? new URL(p, site).href : p);
+const jsonLd = isHome
+  ? { '@context': 'https://schema.org', '@graph': [
+      { '@type': 'Organization', name: 'nia', url: abs('/'), logo: abs('/favicon.svg') },
+      { '@type': 'WebSite', name: 'nia', url: abs('/'), inLanguage: 'fr' }
+    ] }
+  : { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: abs('/') },
+      { '@type': 'ListItem', position: 2, name: "Envoyer de l'argent", item: abs('/envoyer') },
+      { '@type': 'ListItem', position: 3, name: `${origin.name} → ${dest.name}`, item: abs(Astro.url.pathname) }
+    ] };
 ---
-<Base title={title} description={description} localAnchors>
+<Base title={title} description={description} localAnchors jsonLd={jsonLd}>
   <section slot="hero" class="hero wrap" id="top">
     <div class="hero__copy">
+      {!isHome && (
+        <nav class="crumbs" aria-label="Fil d'Ariane"><a href="/">Accueil</a><span aria-hidden="true">›</span><a href="/envoyer">Envoyer de l'argent</a><span aria-hidden="true">›</span><span aria-current="page">{origin.name} → {dest.name}</span></nav>
+      )}
       <div class="pill-kicker"><span class="dots" aria-hidden="true"><i></i><i></i></span>Afrique subsaharienne</div>
       {isHome
         ? <h1>Même envoi, <span class="hl">pas le même montant reçu&nbsp;!</span></h1>
-        : <h1>{origin.name} → {dest.name}&nbsp;: <span class="hl">qui donne le plus&nbsp;?</span></h1>}
-      <p class="hero__lead">Comparez ce que votre famille reçoit vraiment en francs CFA, frais inclus, selon le service et le portefeuille de réception.</p>
+        : <h1 class="h1--corridor">Envoyer de l'argent {origin.from} <span class="hl">{dest.prep}</span></h1>}
+      {isHome
+        ? <p class="hero__lead">Comparez les services de transfert d'argent vers le Cameroun et la Côte d'Ivoire : ce que votre famille reçoit vraiment en francs CFA, frais inclus, sur MTN MoMo, Orange Money, Wave ou en banque.</p>
+        : <p class="hero__lead">Comparatif {origin.ccy} → {dest.fcfa} : ce que votre famille reçoit vraiment {dest.prep}, frais inclus, selon le service et le portefeuille de réception.</p>}
       <ul class="bullets">
         <li>Filtre par portefeuille : MTN MoMo, Orange Money, Wave, Moov</li>
         <li>Offres de bienvenue séparées du taux habituel</li>
@@ -130,6 +151,48 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
     <p class="note">Coût total = frais + écart avec la parité officielle, en % du montant (méthode Banque mondiale ; moyenne mondiale 6,49 % au T1 2025, objectif ONU ≤ 3 %). Les boutons ↗ sont des liens affiliés. Couverture vérifiée pour Taptap Send et LemFi (centres d'aide, 21/10/2026).</p>
   </section>
 
+  {content && (
+    <section class="section wrap" id="a-savoir">
+      <div class="eyebrow">À savoir</div>
+      <h2 class="h2">Envoyer de l'argent {origin.from} {dest.prep} : l'essentiel</h2>
+      <div class="facts">
+        <div class="prose facts__text">
+          <p>{content.rateLine}</p>
+          <p>{content.servicesLine}</p>
+          <p>{content.walletLine}</p>
+          <p>{content.regulatorLine}</p>
+        </div>
+        <div class="table-box facts__table">
+          <table>
+            <caption>Meilleur montant reçu selon la somme envoyée</caption>
+            <thead><tr><th scope="col">Vous envoyez</th><th scope="col">Meilleur service</th><th scope="col">Votre proche reçoit</th></tr></thead>
+            <tbody>
+              {content.byAmount.map((r) => <tr><th scope="row">{r.amount}</th><td>{r.name}</td><td>{r.received}</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="note">Calcul au relevé du {observed}{quotes.sample ? " (valeurs d'exemple)" : ''}, envoi habituel, tous portefeuilles.</p>
+    </section>
+  )}
+
+  {isHome && (
+    <section class="section wrap" id="couloirs-tous">
+      <div class="eyebrow">Tous les couloirs</div>
+      <h2 class="h2">Meilleur montant reçu pour 100, couloir par couloir</h2>
+      <div class="table-box" style="margin-top:20px">
+        <table>
+          <caption class="sr-only">Meilleur service par couloir pour 100 unités envoyées</caption>
+          <thead><tr><th scope="col">Couloir</th><th scope="col">Vous envoyez</th><th scope="col">Meilleur service</th><th scope="col">Votre proche reçoit</th></tr></thead>
+          <tbody>
+            {hub.map((r) => <tr><th scope="row"><a href={r.href}>{r.label}</a></th><td>{r.amount}</td><td>{r.name}</td><td>{r.best}</td></tr>)}
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Relevé du {observed}{quotes.sample ? " (valeurs d'exemple)" : ''}. <a href="/envoyer">Voir tous les couloirs →</a></p>
+    </section>
+  )}
+
   <section class="section section--tint" id="taux">
     <div class="wrap ref">
       <div class="ref__copy">
@@ -162,7 +225,7 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
     <div class="cards">
       <div class="card"><div class="num">1</div><h3>Par montant reçu, rien d'autre</h3><p>(Montant − frais) × taux appliqué. Vous pouvez aussi trier par frais ou par délai. Aucun service ne peut payer pour monter.</p></div>
       <div class="card"><div class="num">2</div><h3>Des liens affiliés, signalés</h3><p>Certains services nous versent une commission quand vous envoyez via nos liens. Vous ne payez pas plus. Un service sans accord avec nous reste classé à sa place.</p></div>
-      <div class="card"><div class="num">3</div><h3>Vérifiez l'agrément vous‑même</h3><p>nia ne détient jamais votre argent. Avant d'envoyer, vérifiez que le service est agréé (ACPR en France, ou autorité d'un autre pays de l'UE / du Royaume‑Uni).</p>
+      <div class="card"><div class="num">3</div><h3>Vérifiez l'agrément vous-même</h3><p>nia ne détient jamais votre argent. Avant d'envoyer, vérifiez que le service est agréé (ACPR en France, ou autorité d'un autre pays de l'UE / du Royaume-Uni).</p>
         <div class="btn-row"><a class="link-btn" href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI (ACPR)</a><a class="link-btn" href="https://register.fca.org.uk" target="_blank" rel="noopener">Registre FCA</a></div>
       </div>
     </div>
@@ -179,7 +242,7 @@ const clientData = { providers, quotes: quotes.quotes, ecb, ccy, dest: destCode 
   <section class="section section--tint" id="faq">
     <div class="wrap faq">
       <h2 class="h2" style="margin-bottom:20px">Questions fréquentes</h2>
-      {faq.map(([q, a], i) => <details open={i === 0}><summary>{q}</summary><p>{a}</p></details>)}
+      {faqAll.map(([q, a], i) => <details open={i === 0}><summary>{q}</summary><p>{a}</p></details>)}
     </div>
   </section>
 

@@ -28,7 +28,7 @@ const partners = providers.filter((p) => p.url);
     <p>Services disposant d'un lien de redirection : {partners.map((p) => p.name).join(', ')}. <span class="todo">[Préciser lesquels font l'objet d'un accord d'affiliation actif.]</span></p>
 
     <h2>Agréments</h2>
-    <p>En France, un service de transfert doit être agréé par l'ACPR comme établissement de paiement ou de monnaie électronique, ou être agréé dans un autre pays de l'Union européenne et « passeporté ». Vérifiez sur <a href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI</a>, le <a href="https://register.fca.org.uk" target="_blank" rel="noopener">registre FCA</a> (Royaume‑Uni) ou le registre de l'autorité concernée.</p>
+    <p>En France, un service de transfert doit être agréé par l'ACPR comme établissement de paiement ou de monnaie électronique, ou être agréé dans un autre pays de l'Union européenne et « passeporté ». Vérifiez sur <a href="https://www.regafi.fr" target="_blank" rel="noopener">REGAFI</a>, le <a href="https://register.fca.org.uk" target="_blank" rel="noopener">registre FCA</a> (Royaume-Uni) ou le registre de l'autorité concernée.</p>
     <ul>
       {providers.map((p) => <li><strong>{p.name}</strong> — {p.licence ?? <span class="todo">[agrément à renseigner]</span>}</li>)}
     </ul>
