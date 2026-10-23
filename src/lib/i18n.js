@@ -27,8 +27,8 @@ export const origins = (lang) => ORIGINS.map((o) => origin(lang, o.code));
 export const dests = (lang) => Object.keys(DESTS).map((c) => dest(lang, c));
 
 export const PATHS = {
-  fr: { home: '/', hub: '/envoyer', how: '/comment-ca-marche', legal: '/mentions-legales', privacy: '/confidentialite' },
-  en: { home: '/en', hub: '/en/send-money', how: '/en/how-it-works', legal: '/en/legal-notice', privacy: '/en/privacy' }
+  fr: { home: '/', hub: '/envoyer', how: '/comment-ca-marche', legal: '/mentions-legales', privacy: '/confidentialite', guide: '/guide-diaspora' },
+  en: { home: '/en', hub: '/en/send-money', how: '/en/how-it-works', legal: '/en/legal-notice', privacy: '/en/privacy', guide: '/en/diaspora-guide' }
 };
 export function corridorPath(lang, o, d) {
   return lang === 'fr'
@@ -70,7 +70,7 @@ export const T = {
     htmlLang: 'fr', ogLocale: 'fr_FR', switchTo: 'English', switchLabel: 'Read this page in English',
     sampleBanner: "Démonstration : les taux des services affichés sont des données d'exemple, pas des offres réelles.",
     sampleBannerLabel: 'Avertissement',
-    nav: { label: 'Navigation principale', ranking: 'Classement', rates: 'Taux de référence', how: 'Comment ça marche', faq: 'FAQ', home: 'nia, accueil' },
+    nav: { label: 'Navigation principale', ranking: 'Classement', rates: 'Taux de référence', how: 'Comment ça marche', faq: 'FAQ', guide: 'Guide Diaspora', home: 'nia, accueil' },
     footer: { about: "Comparateur indépendant des transferts vers le Cameroun et la Côte d'Ivoire. Taux indicatifs, non contractuels : vérifiez le montant final chez le service avant d'envoyer.", label: 'Pied de page', legal: 'Mentions légales', privacy: 'Confidentialité' },
     crumbs: { label: "Fil d'Ariane", home: 'Accueil', hub: "Envoyer de l'argent" },
     kicker: 'Afrique subsaharienne',
@@ -138,6 +138,7 @@ export const T = {
     },
     popular: 'Couloirs populaires', popularSub: (a, ccy, fcfa) => `${a} ${ccy} vers ${fcfa}`,
     faqTitle: 'Questions fréquentes',
+    further: { title: 'Aller plus loin', text: "Vous envoyez régulièrement de l'argent ? Découvrez comment épargner et investir au pays depuis l'étranger.", link: 'Lire le Guide Diaspora →' },
     faq: [
       ["Comment nia gagne-t-il de l'argent ?", "Par des liens affiliés : certains services nous versent une commission quand vous envoyez via nia. Vous ne payez rien de plus, et le classement reste calculé uniquement sur le montant reçu (ou le critère que vous choisissez)."],
       ['Comment le montant reçu est-il calculé ?', "(Montant envoyé − frais) × taux appliqué par le service. Le coût total ajoute frais et écart avec la parité officielle, en % du montant, comme le fait la Banque mondiale."],
@@ -157,7 +158,7 @@ export const T = {
     htmlLang: 'en', ogLocale: 'en_GB', switchTo: 'Français', switchLabel: 'Lire cette page en français',
     sampleBanner: 'Demo: the provider rates shown are sample data, not real offers.',
     sampleBannerLabel: 'Notice',
-    nav: { label: 'Main navigation', ranking: 'Rankings', rates: 'Reference rates', how: 'How it works', faq: 'FAQ', home: 'nia, home' },
+    nav: { label: 'Main navigation', ranking: 'Rankings', rates: 'Reference rates', how: 'How it works', faq: 'FAQ', guide: 'Diaspora Guide', home: 'nia, home' },
     footer: { about: "Independent comparison of money transfers to Cameroon and Côte d'Ivoire. Indicative rates only: always check the final amount with the provider before you send.", label: 'Footer', legal: 'Legal notice', privacy: 'Privacy' },
     crumbs: { label: 'Breadcrumb', home: 'Home', hub: 'Send money' },
     kicker: 'Sub-Saharan Africa',
@@ -225,6 +226,7 @@ export const T = {
     },
     popular: 'Popular corridors', popularSub: (a, ccy, fcfa) => `${a} ${ccy} to ${fcfa}`,
     faqTitle: 'Frequently asked questions',
+    further: { title: 'Go further', text: 'Do you send money regularly? Find out how to save and invest back home from abroad.', link: 'Read the Diaspora Guide →' },
     faq: [
       ['How does nia make money?', 'Through affiliate links: some providers pay us a commission when you send through nia. You pay nothing extra, and the rankings are calculated only on the amount received (or the criterion you choose).'],
       ['How is the amount received calculated?', '(Amount sent − fees) × rate applied by the provider. Total cost adds fees and the gap with the official parity, as a % of the amount, the way the World Bank measures it.'],
@@ -238,5 +240,130 @@ export const T = {
       corridorTitle: (o, d) => `Send money ${o.from} ${d.prep}${d.code === 'CI' ? ' (Ivory Coast)' : ''}: best ${o.ccy} to ${d.fcfa} rate | nia`,
       corridorDesc: (o, d, best, x) => `${best ? `For 100 ${o.ccy} sent ${o.from} ${d.prep}, the best provider gave ${x} ${d.fcfa} (${best}) at the latest check.` : `Compare providers to send money ${o.from} ${d.prep}.`} Compare fees, speed and payout on ${d.code === 'CI' ? 'Wave, Orange Money, MTN, Moov' : 'MTN MoMo, Orange Money'}.`
     }
+  }
+};
+
+// Guide Diaspora : textes de la page. Information indépendante, jamais de recommandation
+// (liste de mots interdits vérifiée par test/site.test.mjs).
+export const GUIDE = {
+  fr: {
+    title: "Épargner et investir au Cameroun et en Côte d'Ivoire depuis l'étranger, guide indépendant",
+    description: "Guide indépendant et sourcé pour épargner et investir au Cameroun et en Côte d'Ivoire depuis l'étranger : épargne, obligations, bourse, fonds, immobilier.",
+    h1: "Épargner et investir au Cameroun et en Côte d'Ivoire depuis l'étranger",
+    independence: 'Information indépendante, pas un conseil en investissement. NIA ne perçoit aucune rémunération des établissements cités.',
+    checked: (d) => `Informations vérifiées le ${d}`,
+    tocLabel: 'Sommaire',
+    before: {
+      title: 'Avant de commencer',
+      tax: ['Fiscalité', "Les exonérations annoncées par les émetteurs concernent souvent les seuls résidents du pays. Si vous résidez en France, au Canada, aux États-Unis ou au Royaume-Uni, vous êtes imposé selon les règles de votre pays de résidence et les conventions fiscales applicables. Renseignez-vous auprès de l'administration fiscale de votre pays de résidence (par exemple la DGFiP en France, l'Agence du revenu du Canada, l'IRS aux États-Unis ou le HMRC au Royaume-Uni)."],
+      fx: ['Change', "Les francs CFA (XOF en Côte d'Ivoire, XAF au Cameroun) sont arrimés à l'euro : 1 € = 655,957 FCFA. Pour un investisseur en dollar ou en livre, le taux de change varie et modifie la valeur du placement dans sa monnaie."],
+      licence: ['Agrément', "Avant d'investir, vérifiez qu'un établissement est agréé par le régulateur compétent :"],
+      risk: ['Risque', 'Tout investissement comporte un risque de perte en capital. Les rendements passés ne garantissent pas les rendements futurs.']
+    },
+    cats: {
+      epargne: ['Épargner', "Les caisses de dépôts et plusieurs banques proposent des produits destinés à la diaspora. Certains sont encore en préparation. Les conditions d'ouverture depuis l'étranger varient selon l'établissement et sont indiquées « À vérifier » quand la source ne les précise pas."],
+      obligations: ["Obligations d'État", "Les États émettent des emprunts obligataires ouverts au public, par exemple avec une valeur nominale de 10 000 FCFA par obligation pour le Trésor ivoirien. Les avantages fiscaux annoncés visent en général les résidents du pays émetteur. Un emprunt destiné à la diaspora est annoncé en Côte d'Ivoire."],
+      bourse: ['Investir en bourse', "La Côte d'Ivoire fait partie de la BRVM, bourse commune à l'UEMOA, et le Cameroun de la BVMAC, bourse de la CEMAC. L'accès passe par une société de gestion et d'intermédiation (SGI) ou une société de bourse agréée. Les montants minimums publiés varient selon l'intermédiaire."],
+      fonds: ['Fonds collectifs', "Un fonds commun de placement (FCP) regroupe l'épargne de plusieurs personnes, gérée par une société de gestion. Les fonds cités ici sont présentés par la presse comme agréés dans la CEMAC. Leur valeur peut baisser comme monter."],
+      immobilier: ['Immobilier', "L'immobilier est souvent le premier projet d'épargne de la diaspora. Ce guide ne recense pas de promoteurs immobiliers. Le produit présenté ci-dessous vise l'accession à la propriété ; sa fiche complète figure dans la section Épargner."],
+      plateformes: ['Plateformes et capital-investissement', "Des plateformes en ligne permettent de placer à distance, en bourse ou dans des entreprises non cotées. Plusieurs sont récentes ou seulement annoncées. Les informations proviennent souvent du site de la plateforme elle-même, signalé comme source tiers."]
+    },
+    seeAlso: (name) => `Voir la fiche « ${name} » dans la section Épargner.`,
+    filter: { label: 'Filtrer par pays', all: 'Tous', CM: 'Cameroun', CI: "Côte d'Ivoire" },
+    empty: 'Aucune fiche pour ce pays dans cette section.',
+    statut: { disponible: 'Disponible', en_preparation: 'En préparation', annonce: 'Annoncé' },
+    acces: { label: "Depuis l'étranger", oui: 'oui', non: 'non', a_verifier: 'À vérifier' },
+    sourceBadge: { officielle: 'Source officielle', presse: 'Source presse / tiers', tiers: 'Source presse / tiers' },
+    sourceType: { officielle: 'officielle', presse: 'presse', tiers: 'tiers' },
+    country: { CM: 'Cameroun', CI: "Côte d'Ivoire" },
+    zoneLabel: 'Zone',
+    countryLabel: 'Pays',
+    minimum: (m, type) => `Minimum publié : ${m} (source ${type})`,
+    sources: 'Sources',
+    sourceLink: (host, type) => `${host} (${type}, nouvel onglet)`,
+    verified: (d) => `Vérifié le ${d}`,
+    attention: 'À savoir',
+    watch: { title: 'À surveiller', intro: 'Produits annoncés ou en préparation. Les dates sont celles avancées par les sources et peuvent changer.', noDate: 'échéance non communiquée' },
+    method: {
+      title: 'Comment nous établissons ce guide',
+      items: [
+        ['Sources', "Nous utilisons en priorité les sources officielles : régulateurs, Trésor, bourses, caisses de dépôts. À défaut, nous citons la presse ou des sites tiers, y compris le site d'une plateforme. Chaque fiche indique le type de source."],
+        ['Vérification', (freq) => `Chaque fiche porte la date de sa dernière vérification. Nous revérifions les fiches ${freq}. La date en haut de page est la plus ancienne des fiches affichées.`],
+        ['Indépendance', "NIA ne perçoit aucune rémunération des établissements cités. Ce guide ne contient aucun lien affilié ni paramètre de suivi. Les fiches sont classées par statut, puis par ordre alphabétique."],
+        ['Une erreur ?', "Signalez-la à l'adresse indiquée dans les mentions légales."]
+      ],
+      legal: 'Mentions légales'
+    },
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Peut-on investir à la BRVM depuis la France ?', "Oui, en passant par une société de gestion et d'intermédiation (SGI) ou une plateforme qui travaille avec une SGI. Certaines SGI proposent l'ouverture de compte à distance, selon les sources citées dans ce guide. Vérifiez l'agrément de l'intermédiaire auprès de l'AMF-UMOA."],
+      ['Les intérêts des emprunts ivoiriens sont-ils imposés en France ?', "L'exonération annoncée par le Trésor ivoirien vise les résidents en Côte d'Ivoire. Un résident en France est imposé selon les règles françaises et la convention fiscale applicable. Renseignez-vous auprès de la DGFiP ou d'un conseiller fiscal."],
+      ["Qu'est-ce qu'un diaspora bond ?", "C'est un emprunt émis par un État et destiné à ses ressortissants vivant à l'étranger. La Côte d'Ivoire en a annoncé un pour le 1er trimestre 2027, selon la presse."],
+      ['Où en est le produit Diasdev au Cameroun ?', "Selon la presse, la Caisse des dépôts et consignations du Cameroun (CDEC) conçoit ce produit d'épargne réglementé. Il n'est pas encore commercialisé, et la CDEC ne le vendra pas elle-même."],
+      ["Comment vérifier qu'une société de bourse est agréée ?", "Consultez la liste des intervenants agréés publiée par le régulateur : l'AMF-UMOA pour l'UEMOA (BRVM), la COSUMAF pour la CEMAC (BVMAC). Pour une banque de la CEMAC, le régulateur est la COBAC."],
+      ['NIA est-il rémunéré par ces établissements ?', "Non. NIA ne perçoit aucune rémunération des établissements cités dans ce guide, qui ne contient aucun lien affilié. Le comparateur de transferts de NIA, lui, utilise des liens affiliés signalés comme tels."]
+    ],
+    back: { title: 'Comparer le coût de vos envois', text: "Avant d'épargner au pays, comparez ce que votre famille reçoit vraiment selon le service de transfert.", link: 'Voir les couloirs de transfert →' },
+    crumbs: 'Guide Diaspora'
+  },
+  en: {
+    title: "Saving and investing in Cameroon and Côte d'Ivoire from abroad: independent guide",
+    description: "Independent, sourced guide to saving and investing in Cameroon and Côte d'Ivoire from abroad: savings, government bonds, stock markets, funds and real estate.",
+    h1: "Saving and investing in Cameroon and Côte d'Ivoire from abroad",
+    independence: 'Independent information, not investment advice. NIA receives no payment from the institutions listed.',
+    checked: (d) => `Information checked on ${d}`,
+    tocLabel: 'Contents',
+    before: {
+      title: 'Before you start',
+      tax: ['Tax', "Tax exemptions announced by issuers often apply only to residents of the country. If you live in France, Canada, the United States or the United Kingdom, you are taxed under the rules of your country of residence and the applicable tax treaties. Check with the tax authority where you live (for example the DGFiP in France, the Canada Revenue Agency, the IRS in the US or HMRC in the UK)."],
+      fx: ['Currency', "CFA francs (XOF in Côte d'Ivoire, XAF in Cameroon) are pegged to the euro: €1 = 655.957 FCFA. For an investor in US dollars or pounds, the exchange rate moves and changes the value of the investment in their own currency."],
+      licence: ['Licensing', 'Before investing, check that an institution is licensed by the relevant regulator:'],
+      risk: ['Risk', 'Every investment carries a risk of capital loss. Past returns do not guarantee future returns.']
+    },
+    cats: {
+      epargne: ['Saving', "Deposit funds and several banks offer products for the diaspora. Some are still in preparation. Conditions for opening an account from abroad vary by institution and are shown as \"To be checked\" when the source does not specify them."],
+      obligations: ['Government bonds', "Governments issue bonds open to the public, for example with a nominal value of 10,000 FCFA per bond for the Ivorian Treasury. Announced tax benefits usually apply to residents of the issuing country. A bond aimed at the diaspora has been announced in Côte d'Ivoire."],
+      bourse: ['Stock markets', "Côte d'Ivoire belongs to the BRVM, the shared UEMOA stock exchange, and Cameroon to the BVMAC, the CEMAC exchange. Access goes through a licensed broker (SGI or brokerage firm). Published minimum amounts vary by broker."],
+      fonds: ['Investment funds', 'A mutual fund (FCP) pools the savings of many people, managed by an asset management company. The press presents the funds listed here as approved in the CEMAC. Their value can go down as well as up.'],
+      immobilier: ['Real estate', 'Real estate is often the diaspora\'s first savings project. This guide does not list property developers. The product shown below is aimed at home ownership; its full entry is in the Saving section.'],
+      plateformes: ['Platforms and private equity', 'Online platforms let you place money remotely, on the stock market or in unlisted companies. Several are recent or only announced. The information often comes from the platform\'s own website, flagged as a third-party source.']
+    },
+    seeAlso: (name) => `See the "${name}" entry in the Saving section.`,
+    filter: { label: 'Filter by country', all: 'All', CM: 'Cameroon', CI: "Côte d'Ivoire" },
+    empty: 'No entry for this country in this section.',
+    statut: { disponible: 'Available', en_preparation: 'In preparation', annonce: 'Announced' },
+    acces: { label: 'From abroad', oui: 'yes', non: 'no', a_verifier: 'To be checked' },
+    sourceBadge: { officielle: 'Official source', presse: 'Press / third-party source', tiers: 'Press / third-party source' },
+    sourceType: { officielle: 'official', presse: 'press', tiers: 'third party' },
+    country: { CM: 'Cameroon', CI: "Côte d'Ivoire" },
+    zoneLabel: 'Zone',
+    countryLabel: 'Country',
+    minimum: (m, type) => `Published minimum: ${m} (${type} source)`,
+    sources: 'Sources',
+    sourceLink: (host, type) => `${host} (${type}, new tab)`,
+    verified: (d) => `Checked on ${d}`,
+    attention: 'Good to know',
+    watch: { title: 'Coming up', intro: 'Products announced or in preparation. Dates are those given by the sources and may change.', noDate: 'no date given' },
+    method: {
+      title: 'How we build this guide',
+      items: [
+        ['Sources', 'We use official sources first: regulators, treasuries, stock exchanges, deposit funds. Otherwise we cite the press or third-party websites, including a platform\'s own site. Each entry shows its source type.'],
+        ['Checks', (freq) => `Each entry shows the date it was last checked. We check entries again ${freq}. The date at the top of the page is the oldest of the entries shown.`],
+        ['Independence', 'NIA receives no payment from the institutions listed. This guide contains no affiliate links and no tracking parameters. Entries are sorted by status, then alphabetically.'],
+        ['Spotted an error?', 'Report it to the address given in the legal notice.']
+      ],
+      legal: 'Legal notice'
+    },
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Can I invest on the BRVM from France?', 'Yes, through a licensed broker (SGI) or a platform that works with one. Some brokers offer remote account opening, according to the sources cited in this guide. Check the broker\'s licence with the AMF-UMOA.'],
+      ['Is interest on Ivorian government bonds taxed in France?', 'The exemption announced by the Ivorian Treasury applies to residents of Côte d\'Ivoire. A French resident is taxed under French rules and the applicable tax treaty. Check with the DGFiP or a tax adviser.'],
+      ['What is a diaspora bond?', 'A bond issued by a government for its citizens living abroad. Côte d\'Ivoire has announced one for the first quarter of 2027, according to press reports.'],
+      ['What is the status of the Diasdev product in Cameroon?', 'According to press reports, Cameroon\'s Caisse des dépôts et consignations (CDEC) is designing this regulated savings product. It is not on sale yet, and the CDEC will not sell it itself.'],
+      ['How do I check that a broker is licensed?', 'Look at the list of licensed firms published by the regulator: the AMF-UMOA for the UEMOA (BRVM), the COSUMAF for the CEMAC (BVMAC). For a CEMAC bank, the regulator is the COBAC.'],
+      ['Is NIA paid by these institutions?', 'No. NIA receives no payment from the institutions listed in this guide, which contains no affiliate links. NIA\'s transfer comparison tool does use affiliate links, which are disclosed as such.']
+    ],
+    back: { title: 'Compare the cost of your transfers', text: 'Before saving back home, compare what your family really receives depending on the transfer provider.', link: 'See the transfer corridors →' },
+    crumbs: 'Diaspora Guide'
   }
 };

@@ -68,6 +68,7 @@ Dans `providers.json`, remplacer chaque `url` par le lien de suivi fourni par le
 - [ ] Mentions légales et confidentialité : remplacer les passages surlignés `[…]`
 - [ ] Vérifier avec un juriste l'information sur le classement et la rémunération (Code de la consommation, art. L111‑7)
 - [ ] Marque « nia » (INPI, EUIPO) et nom de domaine
+- [ ] Guide Diaspora : URL officielles de l'AMF-UMOA et de la COBAC (`url: null` dans `src/data/guide-diaspora.json`), fiches `a_verifier`, relecture de l'anglais par une personne de langue maternelle anglaise, validation du texte par un juriste
 
 ## Structure
 
@@ -76,7 +77,9 @@ src/lib/compare.js      moteur de comparaison (partagé navigateur / génératio
 src/lib/view.js         rendu HTML des résultats
 src/lib/i18n.js         tous les textes FR / EN, noms de pays, adresses des pages
 src/lib/seo.js          textes propres à chaque couloir, titres et descriptions
-src/components/         Landing (page comparateur), Header, Footer, Logo
+src/lib/guide.js        Guide Diaspora : validation des fiches, tri neutre, date globale
+src/data/guide-diaspora.json  fiches du Guide Diaspora (sources, dates de vérification)
+src/components/         Landing (page comparateur), GuidePage, Header, Footer, Logo
 src/pages/              accueil, /envoyer/<couloir>, méthode, légal, /go/<service>, sitemap, robots
 scripts/                fetch-ecb, import-quotes, build-redirects
 test/                   tests (node --test)
@@ -89,3 +92,13 @@ test/                   tests (node --test)
 - Chaque page déclare sa traduction (balises `hreflang`) : Google montre la bonne langue au bon public.
 - L'accueil anglais part du couloir Royaume-Uni → Cameroun ; l'accueil français, de France → Cameroun.
 - Les mentions légales anglaises renvoient à la version française, qui fait foi.
+
+## Guide Diaspora
+
+Pages `/guide-diaspora` et `/en/diaspora-guide` : information indépendante sur l'épargne et l'investissement depuis l'étranger. Aucun lien affilié, aucun paramètre de suivi, aucun bouton d'action : le seul lien d'une fiche est sa source.
+
+- Les fiches sont dans `src/data/guide-diaspora.json`, les textes de la page dans `GUIDE` (`src/lib/i18n.js`).
+- Champs d'une fiche : `id`, `nom`, `categorie`, `pays`, `zone`, `statut`, `acces_etranger`, `minimum` (`{ montant, devise }` ou `null`), `source_url`, `source_type`, `derniere_verification` (AAAA-MM-JJ), `description_fr/en`, `a_savoir_fr/en`. Ajouts : `sources_complementaires` (`[{ url, type }]`), `renvois` (catégories où la fiche est aussi signalée), `echeance_fr/en` (pour « À surveiller »).
+- La date affichée en haut de page est la plus ancienne des `derniere_verification` : mettre à jour la date d'une fiche seulement après avoir relu sa source.
+- Ordre d'affichage : statut, puis ordre alphabétique — jamais de classement.
+- `npm test` vérifie les fiches (`test/guide.test.mjs`) et le HTML construit (`test/site.test.mjs`, qui construit le site dans un dossier temporaire) : mots interdits, liens de suivi, hreflang, sitemap, menu, bloc « Aller plus loin » sur les couloirs.

@@ -17,6 +17,7 @@ const other = lang === 'fr' ? 'en' : 'fr';
       <a href={`${at}#taux`}>{t.nav.rates}</a>
       <a href={PATHS[lang].how}>{t.nav.how}</a>
       <a href={`${at}#faq`}>{t.nav.faq}</a>
+      <a href={PATHS[lang].guide} aria-current={Astro.url.pathname === PATHS[lang].guide ? 'page' : undefined}>{t.nav.guide}</a>
       <a class="lang-switch" href={switchHref ?? PATHS[other].home} hreflang={other} lang={other} aria-label={t.switchLabel}>{t.switchTo}</a>
     </div>
   </nav>

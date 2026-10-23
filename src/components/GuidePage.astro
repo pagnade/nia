@@ -1,0 +1,161 @@
+---
+// Guide Diaspora : information indépendante, sourcée et datée. Aucune recommandation, aucun lien affilié,
+// aucun bouton d'action vers un établissement : le seul lien d'une fiche est sa source.
+import Base from '../layouts/Base.astro';
+import data from '../data/guide-diaspora.json';
+import { CATEGORIES, sortFiches, oldestCheck, byCategory, crossRefs, upcoming, hostOf } from '../lib/guide.js';
+import { GUIDE, T, PATHS, LOCALE, fmt, dateLong } from '../lib/i18n.js';
+
+interface Props { lang: 'fr' | 'en' }
+const { lang } = Astro.props;
+const g = GUIDE[lang];
+const t = T[lang];
+const P = PATHS[lang];
+const fiches = sortFiches(data.fiches, LOCALE[lang]);
+const oldest = oldestCheck(fiches);
+const d = (iso: string) => dateLong(iso, lang);
+const txt = (f: any, k: string) => f[`${k}_${lang}`];
+const sections = CATEGORIES.map((c) => ({ id: c, title: g.cats[c][0], intro: g.cats[c][1], cards: byCategory(fiches, c), refs: crossRefs(fiches, c) }));
+const watch = upcoming(fiches);
+const freq = data.meta[`frequence_verification_${lang}`];
+const toc = [
+  ['avant', g.before.title], ...sections.map((s) => [s.id, s.title]), ['a-surveiller', g.watch.title], ['methode', g.method.title], ['faq-guide', g.faqTitle]
+];
+const sourcesOf = (f: any) => [{ url: f.source_url, type: f.source_type }, ...(f.sources_complementaires || [])];
+const site = Astro.site;
+const abs = (p: string) => (site ? new URL(p, site).href : p);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t.crumbs.home, item: abs(P.home) },
+    { '@type': 'ListItem', position: 2, name: g.crumbs, item: abs(P.guide) }
+  ]
+};
+---
+<Base title={g.title} description={g.description} lang={lang} alternates={{ fr: PATHS.fr.guide, en: PATHS.en.guide }} jsonLd={jsonLd}>
+  <article class="section wrap guide">
+    <nav class="crumbs crumbs--dark" aria-label={t.crumbs.label}><a href={P.home}>{t.crumbs.home}</a><span aria-hidden="true">›</span><span aria-current="page">{g.crumbs}</span></nav>
+    <h1 class="guide__title">{g.h1}</h1>
+    <p class="guide__independence" data-independence>{g.independence}</p>
+    <p class="guide__checked"><span data-checked-label>{g.checked(d(oldest))}</span></p>
+    <script type="application/json" id="guide-i18n" set:html={JSON.stringify({ lang })}></script>
+
+    <nav class="guide__toc" aria-labelledby="toc-title">
+      <h2 id="toc-title" class="guide__toc-title">{g.tocLabel}</h2>
+      <ol>{toc.map(([id, label]) => <li><a href={`#${id}`}>{label}</a></li>)}</ol>
+    </nav>
+
+    <section id="avant" class="guide__before" aria-labelledby="avant-title">
+      <h2 id="avant-title">{g.before.title}</h2>
+      <ul>
+        <li><strong>{g.before.tax[0]}.</strong> {g.before.tax[1]}</li>
+        <li><strong>{g.before.fx[0]}.</strong> {g.before.fx[1]}</li>
+        <li><strong>{g.before.licence[0]}.</strong> {g.before.licence[1]}
+          <ul class="guide__regulators">
+            {data.meta.regulateurs.map((r) => (
+              <li>{r.url
+                ? <a href={r.url} target="_blank" rel="nofollow noopener noreferrer">{r.nom}</a>
+                : <strong>{r.nom}</strong>} — {r[`role_${lang}`]}</li>
+            ))}
+          </ul>
+        </li>
+        <li><strong>{g.before.risk[0]}.</strong> {g.before.risk[1]}</li>
+      </ul>
+    </section>
+
+    <div class="guide__filter" role="group" aria-label={g.filter.label}>
+      <span class="guide__filter-label" aria-hidden="true">{g.filter.label}</span>
+      {['all', 'CM', 'CI'].map((c) => <button type="button" class="opt" data-country={c} aria-pressed={c === 'all' ? 'true' : 'false'}>{g.filter[c]}</button>)}
+    </div>
+
+    {sections.map((s) => (
+      <section id={s.id} class="guide__section" aria-labelledby={`${s.id}-title`} data-guide-section>
+        <h2 id={`${s.id}-title`}>{s.title}</h2>
+        <p class="guide__intro">{s.intro}</p>
+        {s.refs.map((f) => (
+          <p class="guide__seealso" data-pays={f.pays.join(' ')} data-date={f.derniere_verification}><a href={`#fiche-${f.id}`}>{g.seeAlso(f.nom)}</a></p>
+        ))}
+        <div class="guide__cards">
+          {s.cards.map((f) => (
+            <article class="g-card" id={`fiche-${f.id}`} data-pays={f.pays.join(' ')} data-date={f.derniere_verification} aria-labelledby={`t-${f.id}`}>
+              <h3 id={`t-${f.id}`}>{f.nom}</h3>
+              <ul class="g-badges" aria-label={lang === 'fr' ? 'Statut de la fiche' : 'Entry status'}>
+                <li class={`g-badge g-badge--${f.statut}`}>{g.statut[f.statut]}</li>
+                <li class={`g-badge g-badge--acces-${f.acces_etranger}`}>{g.acces.label}{lang === 'fr' ? ' : ' : ': '}{g.acces[f.acces_etranger]}</li>
+                <li class={`g-badge g-badge--src-${f.source_type === 'officielle' ? 'off' : 'other'}`}>{g.sourceBadge[f.source_type]}</li>
+              </ul>
+              <p class="g-desc">{txt(f, 'description')}</p>
+              {txt(f, 'a_savoir') && <p class="g-note"><strong>{g.attention}{lang === 'fr' ? ' : ' : ': '}</strong>{txt(f, 'a_savoir')}</p>}
+              <dl class="g-facts">
+                <div><dt>{g.countryLabel}</dt><dd>{f.pays.map((p) => g.country[p]).join(', ')}</dd></div>
+                <div><dt>{g.zoneLabel}</dt><dd>{f.zone}</dd></div>
+              </dl>
+              {f.minimum && <p class="g-min">{g.minimum(`${fmt(f.minimum.montant, 0, lang)} ${f.minimum.devise}`, g.sourceType[f.source_type])}</p>}
+              <p class="g-sources"><span>{g.sources}{lang === 'fr' ? ' : ' : ': '}</span>
+                {sourcesOf(f).map((s, i) => <>{i > 0 && ' · '}<a href={s.url} target="_blank" rel="nofollow noopener noreferrer">{g.sourceLink(hostOf(s.url), g.sourceType[s.type])}</a></>)}
+              </p>
+              <p class="g-date">{g.verified(d(f.derniere_verification))}</p>
+            </article>
+          ))}
+        </div>
+        <p class="guide__empty" data-empty hidden>{g.empty}</p>
+      </section>
+    ))}
+
+    <section id="a-surveiller" class="guide__section" aria-labelledby="watch-title" data-guide-section>
+      <h2 id="watch-title">{g.watch.title}</h2>
+      <p class="guide__intro">{g.watch.intro}</p>
+      <ul class="guide__watch">
+        {watch.map((f) => (
+          <li data-pays={f.pays.join(' ')} data-date={f.derniere_verification}>
+            <a href={`#fiche-${f.id}`}>{f.nom}</a>{lang === 'fr' ? ' : ' : ': '}{txt(f, 'echeance') || g.watch.noDate} <span class={`g-badge g-badge--${f.statut}`}>{g.statut[f.statut]}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="guide__empty" data-empty hidden>{g.empty}</p>
+    </section>
+
+    <section id="methode" class="guide__section" aria-labelledby="method-title">
+      <h2 id="method-title">{g.method.title}</h2>
+      <dl class="guide__method">
+        {g.method.items.map(([h, p]) => <div><dt>{h}</dt><dd>{typeof p === 'function' ? p(freq) : p}{h === g.method.items[3][0] && <> <a href={P.legal}>{g.method.legal}</a>.</>}</dd></div>)}
+      </dl>
+    </section>
+
+    <section id="faq-guide" class="guide__section faq" aria-labelledby="faq-guide-title">
+      <h2 id="faq-guide-title">{g.faqTitle}</h2>
+      {g.faq.map(([q, a], i) => <details open={i === 0}><summary>{q}</summary><p>{a}</p></details>)}
+    </section>
+
+    <aside class="guide__back" aria-labelledby="back-title">
+      <h2 id="back-title">{g.back.title}</h2>
+      <p>{g.back.text}</p>
+      <a class="cta-main guide__back-link" href={P.hub}><strong>{g.back.link}</strong></a>
+    </aside>
+  </article>
+</Base>
+
+<script>
+  import { GUIDE, dateLong } from '../lib/i18n.js';
+  import { oldestCheck } from '../lib/guide.js';
+
+  const { lang } = JSON.parse(document.getElementById('guide-i18n')!.textContent!);
+  const g = GUIDE[lang as 'fr' | 'en'];
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-country]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-pays]'));
+
+  function apply(country: string) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.country === country)));
+    items.forEach((el) => { el.hidden = country !== 'all' && !el.dataset.pays!.split(' ').includes(country); });
+    document.querySelectorAll<HTMLElement>('[data-guide-section]').forEach((s) => {
+      const shown = s.querySelectorAll('.g-card:not([hidden]), .guide__watch li:not([hidden]), .guide__seealso:not([hidden])').length;
+      s.querySelector<HTMLElement>('[data-empty]')!.hidden = shown > 0;
+    });
+    // La date annoncée reste la plus ancienne des fiches affichées.
+    const visible = Array.from(document.querySelectorAll<HTMLElement>('.g-card:not([hidden])')).map((el) => ({ derniere_verification: el.dataset.date! }));
+    const oldest = oldestCheck(visible);
+    if (oldest) document.querySelector('[data-checked-label]')!.textContent = g.checked(dateLong(oldest, lang));
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.country!)));
+</script>

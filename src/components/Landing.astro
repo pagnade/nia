@@ -240,6 +240,14 @@ const alternates = isHome
     </div>
   </section>
 
+  {!isHome && (
+    <aside class="wrap further" aria-labelledby="further-title" data-further>
+      <h2 id="further-title">{t.further.title}</h2>
+      <p>{t.further.text}</p>
+      <a href={P.guide}>{t.further.link}</a>
+    </aside>
+  )}
+
   <script type="application/json" id="nia-data" set:html={JSON.stringify(clientData)}></script>
 </Base>
 
